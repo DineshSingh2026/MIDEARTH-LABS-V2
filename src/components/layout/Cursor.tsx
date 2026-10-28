@@ -69,28 +69,28 @@ export default function Cursor() {
   const size = cross ? 44 : hovering ? 56 : 28;
 
   return (
-    <div aria-hidden="true" data-cursor-layer="" className="pointer-events-none fixed inset-0 z-[150]" style={{ opacity: visible ? 1 : 0, visibility: visible ? "visible" : "hidden", transition: visible ? "opacity .3s" : "opacity .3s, visibility 0s .3s" }}>
+    <div aria-hidden="true" data-cursor-layer="" className="cursor-layer pointer-events-none fixed inset-0 z-[150]" style={{ opacity: visible ? 1 : 0, visibility: visible ? "visible" : "hidden", transition: visible ? "opacity .3s" : "opacity .3s, visibility 0s .3s" }}>
       <div ref={ring} className="absolute left-0 top-0 will-change-transform" style={{ transform: "translate3d(-300px,-300px,0)" }}>
         <div
           className="absolute rounded-full transition-all duration-500 ease-[cubic-bezier(.16,1,.3,1)]"
           style={{
             width: size, height: size, left: -size / 2, top: -size / 2,
-            border: `1px solid ${cross ? "#6FD0FF" : "var(--accent)"}`,
+            border: `1px solid ${cross ? "var(--cx)" : "var(--accent)"}`,
             background: hovering && !cross ? "color-mix(in oklab, var(--accent) 12%, transparent)" : "transparent",
             transform: `scale(${down ? 0.85 : 1}) rotate(${cross ? 45 : 0}deg)`,
             borderRadius: cross ? 4 : 999,
-            boxShadow: cross ? "0 0 16px rgba(111,208,255,.35)" : "none",
+            boxShadow: cross ? "var(--cx-glow)" : "none",
           }}
         />
         {/* crosshair arms */}
         <div className="absolute transition-opacity duration-300" style={{ opacity: cross ? 1 : 0 }}>
-          <span className="absolute h-px w-[14px] bg-[#6FD0FF]" style={{ left: -36, top: 0 }} />
-          <span className="absolute h-px w-[14px] bg-[#6FD0FF]" style={{ left: 22, top: 0 }} />
-          <span className="absolute h-[14px] w-px bg-[#6FD0FF]" style={{ left: 0, top: -36 }} />
-          <span className="absolute h-[14px] w-px bg-[#6FD0FF]" style={{ left: 0, top: 22 }} />
+          <span className="absolute h-px w-[14px] bg-[var(--cx)]" style={{ left: -36, top: 0 }} />
+          <span className="absolute h-px w-[14px] bg-[var(--cx)]" style={{ left: 22, top: 0 }} />
+          <span className="absolute h-[14px] w-px bg-[var(--cx)]" style={{ left: 0, top: -36 }} />
+          <span className="absolute h-[14px] w-px bg-[var(--cx)]" style={{ left: 0, top: 22 }} />
           <span
-            className="absolute whitespace-nowrap rounded border border-[rgba(111,208,255,.35)] px-1.5 py-0.5 font-mono text-[11px] tracking-[.04em] text-[#CFF1FF]"
-            style={{ left: 30, top: 18, background: "rgba(6,8,26,.78)" }}
+            className="absolute whitespace-nowrap rounded border px-1.5 py-0.5 font-mono text-[11px] tracking-[.04em]"
+            style={{ left: 30, top: 18, background: "var(--cl-bg)", color: "var(--cl-fg)", borderColor: "var(--cl-bd)" }}
           >
             {hoverNode}
           </span>
@@ -99,9 +99,13 @@ export default function Cursor() {
       <div ref={dot} className="absolute left-0 top-0 will-change-transform" style={{ transform: "translate3d(-300px,-300px,0)" }}>
         <div
           className="absolute h-[5px] w-[5px] rounded-full transition-[background,transform] duration-300"
-          style={{ left: -2.5, top: -2.5, background: cross ? "#6FD0FF" : "var(--accent)", transform: `scale(${hovering && !cross ? 0 : 1})` }}
+          style={{ left: -2.5, top: -2.5, background: cross ? "var(--cx)" : "var(--accent)", transform: `scale(${hovering && !cross ? 0 : 1})` }}
         />
       </div>
+      <style>{`
+        .cursor-layer{--cx:#6FD0FF;--cx-glow:0 0 16px rgba(111,208,255,.35);--cl-bg:rgba(6,8,26,.78);--cl-fg:#CFF1FF;--cl-bd:rgba(111,208,255,.35)}
+        :root[data-theme="light"] .cursor-layer{--cx:#2563EB;--cx-glow:0 0 0 3px rgba(37,99,235,.10);--cl-bg:rgba(255,255,255,.94);--cl-fg:#0E1130;--cl-bd:rgba(17,20,60,.10)}
+      `}</style>
     </div>
   );
 }

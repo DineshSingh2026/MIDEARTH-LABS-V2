@@ -2,7 +2,7 @@
 import { Component, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { PerformanceMonitor } from "@react-three/drei";
-import { EffectComposer, Vignette, Noise } from "@react-three/postprocessing";
+import { EffectComposer, Vignette, Noise, N8AO } from "@react-three/postprocessing";
 import { BlendFunction, BloomEffect } from "postprocessing";
 import * as THREE from "three";
 import { useStore } from "@/lib/store";
@@ -29,7 +29,7 @@ function World({ max, active }: { max: number; active: number }) {
   const tilt = useRef<THREE.Group>(null);
   const spin = useRef<THREE.Group>(null);
   const rig = useMemo(
-    () => ({ look: new THREE.Vector3(), camGoal: new THREE.Vector3(0, 0, CAM_DIST), posGoal: new THREE.Vector3(), spinSpeed: 0.09, mx: 0, my: 0, scale: 1, dolly: 0, chapter: "", orbit: 0, vox: 0, voy: 0, arenaAmt: 0 }),
+    () => ({ look: new THREE.Vector3(), camGoal: new THREE.Vector3(0, 0, CAM_DIST), posGoal: new THREE.Vector3(), spinSpeed: 0.09, mx: 0, my: 0, scale: 1, dolly: 0, chapter: "", orbit: 0, vox: 0, voy: 0, arenaAmt: 0, fov: FOV }),
     []
   );
 
@@ -85,12 +85,20 @@ function World({ max, active }: { max: number; active: number }) {
     const t = state.clock.elapsedTime;
     const A = lay.arena;
     let lx = lay.look[0], ly = lay.look[1], lz = lay.look[2];
+    // light "porcelain" arena: longer lens + slightly higher camera (product-render feel); dark is untouched
+    const porcelain = !!A && s.theme === "light";
+    rig.fov += ((porcelain ? 33 : FOV) - rig.fov) * kc;
+    const pcam = cam as THREE.PerspectiveCamera;
+    if (Math.abs(pcam.fov - rig.fov) > 0.01) { pcam.fov = rig.fov; pcam.updateProjectionMatrix(); }
     if (A) {
       // slow cinematic orbit + mouse parallax (yaw + height)
       rig.orbit += A.speed * dt;
       const a = rig.orbit + rig.mx * 0.14;
-      const R = A.R + rig.dolly * 2.5;
-      rig.camGoal.set(Math.sin(a) * R, A.H - rig.my * 0.7 + Math.sin(t * 0.13) * 0.25, Math.cos(a) * R);
+      // keep the framing when the lens narrows
+      const lens = Math.tan(THREE.MathUtils.degToRad(FOV / 2)) / Math.tan(THREE.MathUtils.degToRad(rig.fov / 2));
+      const R = (A.R + rig.dolly * 2.5) * lens;
+      const H = A.H * lens * (porcelain ? (s.chapter === "cta" ? 1.3 : 1.22) : 1);
+      rig.camGoal.set(Math.sin(a) * R, H - rig.my * 0.7 + Math.sin(t * 0.13) * 0.25, Math.cos(a) * R);
       lx = A.look[0]; ly = A.look[1]; lz = A.look[2];
     } else {
       rig.camGoal.set(
@@ -190,8 +198,17 @@ function Effects() {
     // light: only near-white emissive highlights bloom, porcelain tiles must not haze
     bloom.luminanceMaterial.threshold = light ? 0.9 : 0.2;
   });
+  if (light) {
+    return (
+      <EffectComposer key="light" multisampling={0} enableNormalPass={false}>
+        {/* clay contact shadows between tiles / around the sculptures and core */}
+        <N8AO aoRadius={1.7} intensity={2.4} distanceFalloff={1.2} quality="medium" halfRes color="#5B4FA0" />
+        <primitive object={bloom} dispose={null} />
+      </EffectComposer>
+    );
+  }
   return (
-    <EffectComposer multisampling={0} enableNormalPass={false}>
+    <EffectComposer key="dark" multisampling={0} enableNormalPass={false}>
       <primitive object={bloom} dispose={null} />
       <Vignette offset={0.3} darkness={light ? 0 : 0.55} eskil={false} />
       {/* premultiply: grain only modulates rendered particles, never paints the transparent background; none in light */}

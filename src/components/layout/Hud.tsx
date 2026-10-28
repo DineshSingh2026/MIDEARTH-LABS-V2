@@ -38,6 +38,8 @@ export default function Hud() {
       <style>{`
         .hud{background:color-mix(in oklab,var(--ground) 55%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border:1px solid color-mix(in oklab,var(--line) 70%,transparent)}
         .hud-dot{box-shadow:0 0 8px #6FD0FF}
+        :root[data-theme="light"] .hud-dot{background:#5B2EE0;box-shadow:0 0 0 2px rgba(91,46,224,.12)}
+        :root[data-theme="light"] .hud-dot::after{border-color:#5B2EE0}
         .hud-dot::after{content:"";position:absolute;inset:-3px;border-radius:99px;border:1px solid #6FD0FF;opacity:0;animation:hudp 1.8s cubic-bezier(.16,1,.3,1) infinite}
         @keyframes hudp{0%{transform:scale(.4);opacity:.9}100%{transform:scale(2);opacity:0}}
       `}</style>

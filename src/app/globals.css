@@ -40,25 +40,35 @@
   color-scheme: dark;
 }
 :root[data-theme="light"] {
-  --ground: #F6F5FC;
+  /* ---- "Porcelain" light system. Dark theme above is untouched. ---- */
+  --ground: #F7F6FB;
   --ground-alt: #FFFFFF;
-  --surface: #FBFAFF;
+  --surface: #FFFFFF;
   --surface-flat: #FFFFFF;
-  --ink: #14173A;
-  --ink-soft: #3C4270;
-  --ink-muted: #565C87;
-  --ink-faint: #5B6089;
-  --line: rgba(91,46,224,.14);
-  --line-strong: rgba(91,46,224,.32);
+  --ink: #0E1130;
+  --ink-soft: #4B5175;
+  --ink-muted: #5A6085;   /* spec #6B7194, deepened for AA on tinted ground */
+  --ink-faint: #686E91;   /* spec #8A8FB0 (2.9:1) deepened to pass AA for small mono text */
+  --line: rgba(17,20,60,.08);
+  --line-strong: rgba(17,20,60,.14);
   --accent: #5B2EE0;
-  --accent-ink: #6B3FE8;
-  --grad-cta: linear-gradient(97deg,#5B2EE0 0%,#1F6FD6 100%);
-  --grad-word: linear-gradient(95deg,#5B2EE0 0%,#1F6FD6 100%);
-  --cta-shadow: 0 10px 26px rgba(70,46,200,.24);
-  --chip-bg: #FFFFFF;
-  --chip-icon-bg: #EFE9FF;
-  --nav-bg: rgba(255,255,255,.8);
+  --accent-ink: #5B2EE0;
+  --accent-2: #2563EB;
+  --grad-cta: linear-gradient(97deg,#5B2EE0 0%,#2563EB 100%);
+  --grad-word: linear-gradient(95deg,#5B2EE0 0%,#2563EB 55%,#0EA5E9 100%);
+  --cta-shadow: 0 1px 2px rgba(14,17,48,.08), 0 8px 20px -6px rgba(91,46,224,.45);
+  --chip-bg: rgba(255,255,255,.72);
+  --chip-icon-bg: #F0ECFF;
+  --nav-bg: rgba(255,255,255,.72);
   --logo-filter: none;
+  /* porcelain surface recipe */
+  --pc-bg: rgba(255,255,255,.72);
+  --pc-border: rgba(17,20,60,.07);
+  --pc-border-hover: rgba(91,46,224,.22);
+  --pc-hi: inset 0 1px 0 rgba(255,255,255,.9);
+  --pc-shadow: 0 1px 2px rgba(14,17,48,.04), 0 8px 24px -8px rgba(14,17,48,.08), 0 24px 60px -24px rgba(91,46,224,.14);
+  --pc-shadow-hover: 0 1px 2px rgba(14,17,48,.05), 0 12px 30px -10px rgba(14,17,48,.10), 0 30px 70px -24px rgba(91,46,224,.24);
+  --pc-ring: linear-gradient(135deg, color-mix(in oklab,#5B2EE0 60%,transparent), color-mix(in oklab,#2563EB 60%,transparent));
   color-scheme: light;
 }
 
@@ -162,3 +172,193 @@ body {
   *, *::before, *::after { animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .2s !important; }
   .reveal { transform: none; }
 }
+
+/* =====================================================================
+   PORCELAIN — light-theme design system (light only; dark untouched).
+   Prefix `html:root[data-theme="light"]` (0,2,1) intentionally outranks
+   the per-section `:root[data-theme="light"]` rules so one recipe wins.
+   ===================================================================== */
+
+/* ground: soft pastel mesh, fixed behind everything (canvas is transparent above it) */
+html:root[data-theme="light"],
+html:root[data-theme="light"] body {
+  background-color: #F7F6FB;
+  background-image:
+    radial-gradient(60% 55% at 8% 0%, #ECE7FF 0%, rgba(236,231,255,0) 70%),
+    radial-gradient(45% 50% at 100% 38%, #FFEFF5 0%, rgba(255,239,245,0) 70%),
+    radial-gradient(60% 45% at 50% 105%, #E6F3FF 0%, rgba(230,243,255,0) 70%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+html:root[data-theme="light"] ::selection { background: rgba(91,46,224,.18); color: #0E1130; }
+
+/* type */
+html:root[data-theme="light"] .grad-word {
+  background-image: var(--grad-word); background-size: 140% 100%;
+  animation-duration: 12s;
+}
+html:root[data-theme="light"] .eyebrow { color: #5B2EE0; }
+html:root[data-theme="light"] .lede { color: var(--ink-soft); }
+
+/* ---------- the one surface recipe ---------- */
+html:root[data-theme="light"] .glass,
+html:root[data-theme="light"] .chip,
+html:root[data-theme="light"] .hero-chip,
+html:root[data-theme="light"] .eng-chip,
+html:root[data-theme="light"] .pf-card,
+html:root[data-theme="light"] .hw-frame,
+html:root[data-theme="light"] .hero-plate,
+html:root[data-theme="light"] .lang-pill[aria-pressed="false"],
+html:root[data-theme="light"] .nav-shell,
+html:root[data-theme="light"] .hud {
+  background: var(--pc-bg) !important;
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+  backdrop-filter: blur(18px) saturate(160%);
+  border: 1px solid var(--pc-border) !important;
+  box-shadow: var(--pc-hi), var(--pc-shadow) !important;
+}
+html:root[data-theme="light"] .glass:hover,
+html:root[data-theme="light"] .hero-chip:hover,
+html:root[data-theme="light"] .hero-chip:focus-visible,
+html:root[data-theme="light"] .eng-chip:hover,
+html:root[data-theme="light"] .lang-pill[aria-pressed="false"]:hover {
+  border-color: var(--pc-border-hover) !important;
+  box-shadow: var(--pc-hi), var(--pc-shadow-hover) !important;
+}
+/* small chips: lighter shadow so rows of pills don't look heavy */
+html:root[data-theme="light"] .chip,
+html:root[data-theme="light"] .hero-chip,
+html:root[data-theme="light"] .eng-chip,
+html:root[data-theme="light"] .lang-pill[aria-pressed="false"] {
+  box-shadow: var(--pc-hi), 0 1px 2px rgba(14,17,48,.04), 0 6px 16px -8px rgba(14,17,48,.10) !important;
+  color: var(--ink-soft);
+}
+html:root[data-theme="light"] .hero-chip:hover,
+html:root[data-theme="light"] .eng-chip:hover,
+html:root[data-theme="light"] .lang-pill[aria-pressed="false"]:hover {
+  box-shadow: var(--pc-hi), 0 1px 2px rgba(14,17,48,.05), 0 10px 24px -10px rgba(91,46,224,.30) !important;
+  color: var(--ink) !important;
+}
+html:root[data-theme="light"] .chip-icon { background: #F0ECFF; color: #5B2EE0; }
+html:root[data-theme="light"] .eng-chip:hover .chip-icon,
+html:root[data-theme="light"] .hero-chip:hover .chip-icon { background: #E7E0FF; box-shadow: none; }
+
+/* card internals: no neon. spot light becomes a whisper, hairline retires */
+html:root[data-theme="light"] .spot::after {
+  background: radial-gradient(420px circle at var(--mx, 50%) var(--my, -200px), rgba(91,46,224,.05), transparent 60%);
+}
+html:root[data-theme="light"] .sheen { background: linear-gradient(180deg, rgba(255,255,255,.7), rgba(255,255,255,0) 32%); }
+html:root[data-theme="light"] .hairline { opacity: 0 !important; }
+html:root[data-theme="light"] .conic-border::before {
+  background: linear-gradient(135deg, rgba(91,46,224,.35), rgba(37,99,235,.18) 50%, rgba(91,46,224,.05));
+  animation: none;
+}
+html:root[data-theme="light"] .conic-border:hover::before { opacity: .9; }
+
+/* featured cards (Pro, detected download): refined gradient ring + soft shadow */
+html:root[data-theme="light"] .conic-border.spin::before {
+  background: var(--pc-ring); opacity: 1; animation: none; padding: 1.5px;
+}
+html:root[data-theme="light"] .glass.spin {
+  border-color: transparent !important;
+  background: linear-gradient(180deg, rgba(91,46,224,.045), rgba(255,255,255,0) 38%), rgba(255,255,255,.82) !important;
+  box-shadow: var(--pc-hi), 0 1px 2px rgba(14,17,48,.05), 0 12px 32px -10px rgba(14,17,48,.10), 0 36px 80px -28px rgba(91,46,224,.30) !important;
+}
+html:root[data-theme="light"] .glass.spin:hover {
+  box-shadow: var(--pc-hi), 0 1px 2px rgba(14,17,48,.06), 0 16px 40px -12px rgba(14,17,48,.12), 0 44px 90px -28px rgba(91,46,224,.38) !important;
+}
+/* badges sitting on featured cards */
+html:root[data-theme="light"] .price-card > span[style*="grad-cta"] { box-shadow: var(--cta-shadow) !important; }
+html:root[data-theme="light"] .tilt > span[style*="chip-bg"] {
+  background: #fff !important; border-color: var(--pc-border) !important;
+  box-shadow: 0 1px 2px rgba(14,17,48,.06), 0 8px 20px -8px rgba(91,46,224,.28) !important;
+}
+
+/* inner panels */
+html:root[data-theme="light"] .price-card .rounded-2xl.border { background: rgba(247,246,251,.7) !important; border-color: var(--pc-border) !important; }
+html:root[data-theme="light"] .meter-track { background: rgba(17,20,60,.07); box-shadow: inset 0 1px 1px rgba(14,17,48,.06); }
+html:root[data-theme="light"] .meter-tick { background: rgba(17,20,60,.14); }
+html:root[data-theme="light"] .meter-fill { background: linear-gradient(90deg,#5B2EE0,#2563EB); box-shadow: none !important; filter: none !important; }
+html:root[data-theme="light"] .meter-fill::after { border: 1px solid rgba(91,46,224,.35); box-shadow: 0 1px 2px rgba(14,17,48,.12), 0 0 0 3px rgba(91,46,224,.12); }
+html:root[data-theme="light"] .dev-stage {
+  background: radial-gradient(70% 70% at 50% 62%, rgba(91,46,224,.07), transparent 70%), linear-gradient(180deg,#FFFFFF,#F6F4FC);
+  border-color: var(--pc-border); box-shadow: inset 0 1px 0 #fff, inset 0 -1px 0 rgba(17,20,60,.03);
+}
+html:root[data-theme="light"] .dev-stage::before { background-image: linear-gradient(rgba(17,20,60,.05) 1px, transparent 1px), linear-gradient(90deg, rgba(17,20,60,.05) 1px, transparent 1px); }
+html:root[data-theme="light"] .dev-art { filter: drop-shadow(0 14px 22px rgba(14,17,48,.14)); }
+html:root[data-theme="light"] .lift:hover .dev-art { filter: drop-shadow(0 22px 30px rgba(91,46,224,.22)); }
+html:root[data-theme="light"] .lift:not(.spin):hover { box-shadow: var(--pc-hi), var(--pc-shadow-hover) !important; border-color: var(--pc-border-hover) !important; }
+
+/* ---------- buttons ---------- */
+html:root[data-theme="light"] .btn-primary { box-shadow: var(--cta-shadow); }
+html:root[data-theme="light"] .btn-primary:hover { box-shadow: 0 1px 2px rgba(14,17,48,.10), 0 14px 30px -8px rgba(91,46,224,.55); }
+html:root[data-theme="light"] .btn-ghost {
+  background: #fff; border: 1px solid rgba(17,20,60,.10); color: var(--ink);
+  box-shadow: 0 1px 2px rgba(14,17,48,.05), 0 6px 16px -8px rgba(14,17,48,.12);
+}
+html:root[data-theme="light"] .btn-ghost:hover { border-color: rgba(91,46,224,.30); box-shadow: 0 1px 2px rgba(14,17,48,.06), 0 10px 24px -10px rgba(91,46,224,.30); }
+
+/* ---------- section-specific de-neon ---------- */
+/* hero */
+html:root[data-theme="light"] .hero-ch { text-shadow: none; }
+html:root[data-theme="light"] .hero-shimmer { background-image: linear-gradient(95deg,#5B2EE0 0%,#2563EB 45%,#0EA5E9 75%,#5B2EE0 100%); }
+html:root[data-theme="light"] .hero-sweep { background-image: linear-gradient(105deg,transparent 40%,rgba(91,46,224,.55) 49%,rgba(37,99,235,.55) 51%,transparent 60%); }
+html:root[data-theme="light"] .hero-horizon { background: linear-gradient(90deg,transparent,rgba(91,46,224,.45),rgba(37,99,235,.4),transparent); box-shadow: none; }
+html:root[data-theme="light"] .hero-blob { opacity: .10; }
+html:root[data-theme="light"] .hero-plate { border-radius: 16px; }
+/* engines */
+html:root[data-theme="light"] .er-band { background: linear-gradient(180deg,transparent,rgba(255,255,255,.38) 30%,rgba(255,255,255,.38) 70%,transparent); }
+html:root[data-theme="light"] .er-hair { background: linear-gradient(90deg,transparent,rgba(17,20,60,.10) 25%,rgba(17,20,60,.10) 75%,transparent); }
+/* platform: deepen per-card accents so text/numbers stay legible on white */
+html:root[data-theme="light"] .pf-card[style*="A98CFF" i] { --ac: #5B2EE0 !important; }
+html:root[data-theme="light"] .pf-card[style*="6FD0FF" i] { --ac: #0284C7 !important; }
+html:root[data-theme="light"] .pf-card[style*="4F8BFF" i] { --ac: #2563EB !important; }
+html:root[data-theme="light"] .pf-card[style*="E07BFF" i] { --ac: #C026D3 !important; }
+html:root[data-theme="light"] .pf-card[style*="3DDBB4" i] { --ac: #059669 !important; }
+html:root[data-theme="light"] .pf-card[style*="FFB86B" i] { --ac: #B45309 !important; }
+html:root[data-theme="light"] .pf-card > div:not(.pf-vis) > .mono { color: var(--ink-faint) !important; }
+html:root[data-theme="light"] .pf-card.is-on > div:not(.pf-vis) > .mono { color: var(--ac) !important; }
+html:root[data-theme="light"] .pf-card > div:not(.pf-vis) > .mono > span { background: var(--ac) !important; box-shadow: none !important; }
+html:root[data-theme="light"] .pf-card.is-on { border-color: color-mix(in oklab, var(--ac) 22%, transparent) !important; box-shadow: var(--pc-hi), var(--pc-shadow-hover) !important; }
+html:root[data-theme="light"] .pf-topglow { background: linear-gradient(90deg,transparent,var(--ac),transparent); box-shadow: none; opacity: 0; }
+html:root[data-theme="light"] .pf-card.is-on .pf-topglow { opacity: .55; }
+html:root[data-theme="light"] .pf-radial { background: radial-gradient(80% 50% at 50% 0%, color-mix(in oklab,var(--ac) 6%,transparent), transparent 70%); }
+html:root[data-theme="light"] .pf-num-o { -webkit-text-stroke: 1px rgba(17,20,60,.12); }
+html:root[data-theme="light"] .pf-num-f { background-image: linear-gradient(160deg, color-mix(in oklab,var(--ac) 80%,#0E1130), var(--ac)); }
+html:root[data-theme="light"] .pf-vis {
+  border-color: var(--pc-border);
+  background:
+    radial-gradient(70% 90% at 50% 50%, color-mix(in oklab,var(--ac) 5%,transparent), transparent 70%),
+    linear-gradient(rgba(17,20,60,.045) 1px,transparent 1px) 0 0/22px 22px,
+    linear-gradient(90deg,rgba(17,20,60,.045) 1px,transparent 1px) 0 0/22px 22px,
+    linear-gradient(180deg,#FFFFFF,#F7F6FB);
+  box-shadow: inset 0 1px 0 #fff;
+}
+html:root[data-theme="light"] .pf-count { color: #5B2EE0 !important; text-shadow: none !important; }
+/* how it works */
+html:root[data-theme="light"] .hw-frame { border-radius: 26px; }
+html:root[data-theme="light"] .hw-frame::after { background: radial-gradient(70% 40% at 50% 0%, rgba(91,46,224,.04), transparent 70%); }
+html:root[data-theme="light"] .hw-topglow { background: linear-gradient(90deg,transparent,rgba(91,46,224,.5),rgba(37,99,235,.45),transparent); box-shadow: none; }
+html:root[data-theme="light"] .ha-panel { background: #fff !important; border-color: var(--pc-border) !important; box-shadow: 0 1px 2px rgba(14,17,48,.05), 0 6px 16px -8px rgba(14,17,48,.10) !important; }
+html:root[data-theme="light"] .hw-progress { background: linear-gradient(180deg,#5B2EE0,#2563EB) !important; box-shadow: none !important; }
+html:root[data-theme="light"] .hw-dot { box-shadow: none !important; }
+html:root[data-theme="light"] .hw-dot[data-on="true"] { background: linear-gradient(90deg,#5B2EE0,#2563EB) !important; }
+html:root[data-theme="light"] .hw-step { filter: none !important; }
+/* apps */
+html:root[data-theme="light"] .orb-chip {
+  background: rgba(255,255,255,.9); border: 1px solid var(--pc-border);
+  box-shadow: inset 0 1px 0 #fff, 0 1px 2px rgba(14,17,48,.05), 0 8px 20px -8px rgba(14,17,48,.14);
+}
+html:root[data-theme="light"] .orb-node:hover .orb-chip { border-color: var(--pc-border-hover); }
+html:root[data-theme="light"] .orb-node.is-active .orb-chip { border-color: rgba(91,46,224,.45); box-shadow: 0 0 0 4px rgba(91,46,224,.10), 0 12px 28px -10px rgba(91,46,224,.40); }
+html:root[data-theme="light"] .orb-orb { box-shadow: 0 24px 50px -18px rgba(91,46,224,.55), 0 8px 20px -10px rgba(14,17,48,.25), inset -10px -14px 30px rgba(40,20,140,.30); }
+html:root[data-theme="light"] .orb-tip { background: #fff; border-color: var(--pc-border); box-shadow: 0 1px 2px rgba(14,17,48,.06), 0 8px 18px -8px rgba(14,17,48,.16); }
+html:root[data-theme="light"] .orb-track .line { stroke: rgba(17,20,60,.14); }
+html:root[data-theme="light"] .orb-beam-core { stroke: #2563EB; }
+/* languages */
+html:root[data-theme="light"] .greet-glow { filter: drop-shadow(0 18px 30px rgba(91,46,224,.16)); }
+/* cta */
+html:root[data-theme="light"] .burst-rays { background: repeating-conic-gradient(from 0deg, rgba(91,46,224,.09) 0deg 1.4deg, transparent 1.4deg 7deg); }
+html:root[data-theme="light"] .burst-rays.b2 { background: repeating-conic-gradient(from 3deg, rgba(37,99,235,.07) 0deg .8deg, transparent .8deg 11deg); }
+html:root[data-theme="light"] .burst-core { background: radial-gradient(closest-side, rgba(91,46,224,.14), rgba(37,99,235,.06) 50%, transparent); }
+html:root[data-theme="light"] .burst-ring { border-color: rgba(91,46,224,.12); box-shadow: none; }

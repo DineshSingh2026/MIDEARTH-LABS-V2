@@ -8,6 +8,10 @@ import { runtime } from "./runtime";
 import { ease, pointScale } from "./util3d";
 import { CORE_Y, FLOOR_R, HEX_S, hexCentres, MONO_R, worldToHex } from "./targets/arena";
 import { rng } from "./targets/util";
+import { arena, addRipple, N_ORB, N_RIP } from "./arenaState";
+import PorcelainArena from "./PorcelainArena";
+
+export { arena, addRipple };
 
 /* =====================================================================================
  * THE ARENA: a live agent economy.
@@ -33,33 +37,8 @@ const LT = {
 const WHITE = new THREE.Color(1, 1, 1);
 
 const TEAM_HEX = [engineColor.claude, engineColor.codex, engineColor.grok, engineColor.gemini, ACCENT];
-const N_RIP = 6;
-const N_ORB = 3;
 const N_BEAM = 4;
 
-/** Shared, mutable arena state (no React re-renders). */
-export const arena = {
-  vis: 0,
-  bootT: 1e6,
-  flash: 0,
-  flashCol: new THREE.Color("#ffffff"),
-  rip: Array.from({ length: N_RIP }, () => new THREE.Vector4(0, 0, -100, 0)),
-  ripNext: 0,
-  orbs: Array.from({ length: N_ORB }, () => new THREE.Vector4(0, 0, 0, 0)), // x, z, glow, _
-  sector: 0,
-  sectorAmt: 0,
-  /** 0..1: dims the arena on the left of the screen so the hero copy stays readable. */
-  leftDim: 0,
-  /** 0..1: pushes the near-camera fade further out (engines -> platform hand-off keeps the lower half clean). */
-  nearK: 0,
-  /** framebuffer width in px (for the screen-space left dim). */
-  resX: 1,
-};
-
-export function addRipple(x: number, z: number, t: number, strength = 1) {
-  arena.rip[arena.ripNext].set(x, z, t, strength);
-  arena.ripNext = (arena.ripNext + 1) % N_RIP;
-}
 
 /* ------------------------------------------------------------------ glow sprite shader */
 const spriteVert = /* glsl */ `
@@ -808,7 +787,7 @@ void main() {
   vec4 mv = modelViewMatrix * vec4(position, 1.0);
   float boost = uTeamBoost[ti];
   float tw = 0.75 + 0.25 * sin(uTime * 4.0 + aSeed * 50.0);
-  gl_PointSize = clamp((0.055 + aSeed * 0.05) * (1.0 + boost * 0.8) * mix(1.0, 0.85, uLight) * uScale / max(0.1, -mv.z), 0.0, mix(40.0, 9.0, uLight));
+  gl_PointSize = clamp((0.055 + aSeed * 0.05) * (1.0 + boost * 0.8) * mix(1.0, 0.62, uLight) * uScale / max(0.1, -mv.z), 0.0, mix(40.0, 6.0, uLight));
   gl_Position = projectionMatrix * mv;
   vC = uTeamCol[ti];
   vA = tw * (0.7 + boost * 0.8);
@@ -898,12 +877,13 @@ function Swarms({ count }: { count: number }) {
 
   useFrame((state, dtRaw) => {
     const s = useStore.getState();
-    const v = arena.vis;
+    const light = s.theme === "light";
+    // light: follow the porcelain floor's fade-out through engines so no orbs/beams linger over the platform copy
+    const v = light && s.chapter === "engines" ? arena.vis * Math.max(0, 0.75 - s.chapterProgress * 1.1) : arena.vis;
     if (group.current) group.current.visible = v > 0.01;
     if (v < 0.01) return;
     const dt = Math.min(dtRaw, 0.05);
     const t = state.clock.elapsedTime;
-    const light = s.theme === "light";
     const U = sim.uniforms;
     if (theme.current !== s.theme) {
       theme.current = s.theme;
@@ -918,6 +898,8 @@ function Swarms({ count }: { count: number }) {
       }
       const b = light ? THREE.NormalBlending : THREE.AdditiveBlending;
       sim.mat.blending = b; sim.orbSprites.mat.blending = b;
+      sim.beams.forEach((bm) => { bm.mat.blending = b; bm.mat.needsUpdate = true; });
+      sim.geo.setDrawRange(0, light ? Math.round(sim.n * 0.6) : sim.n);
       sim.mat.needsUpdate = true; sim.orbSprites.mat.needsUpdate = true;
       sim.orbSprites.uniforms.uLight.value = light ? 1 : 0;
     }
@@ -973,7 +955,8 @@ function Swarms({ count }: { count: number }) {
         b.mesh.position.copy(tmp.a);
         b.mesh.scale.set(1, tmp.b.length(), 1);
         b.mesh.quaternion.setFromUnitVectors(tmp.up, tmp.b.normalize());
-        b.mat.color.copy(arena.flashCol).lerp(WHITE, 0.35);
+        b.mat.color.copy(arena.flashCol);
+        if (!light) b.mat.color.lerp(WHITE, 0.35); // on porcelain a whitened beam reads as a white bar
         b.start = t;
         b.mesh.visible = true;
       } else if (t - o.born > 7) {
@@ -1031,7 +1014,8 @@ function Swarms({ count }: { count: number }) {
       osz[k] = 0.9 + Math.sin(t * 5 + k) * 0.15;
       oa[k] = o.glow;
       const c = o.team >= 0 ? (U.uTeamCol.value as THREE.Color[])[o.team] : CYAN;
-      oc[k * 3] = 0.6 + c.r * 0.4; oc[k * 3 + 1] = 0.6 + c.g * 0.4; oc[k * 3 + 2] = 0.6 + c.b * 0.4;
+      if (light) { oc[k * 3] = c.r; oc[k * 3 + 1] = c.g; oc[k * 3 + 2] = c.b; } // saturated, not near-white, on porcelain
+      else { oc[k * 3] = 0.6 + c.r * 0.4; oc[k * 3 + 1] = 0.6 + c.g * 0.4; oc[k * 3 + 2] = 0.6 + c.b * 0.4; }
     });
     os.pos.needsUpdate = true; os.size.needsUpdate = true; os.alpha.needsUpdate = true; os.col.needsUpdate = true;
     os.uniforms.uVis.value = v;
@@ -1065,6 +1049,8 @@ export const ARENA_CHAPTERS = ["hero", "engines", "cta"];
 
 /** The arena world. Lives in world space at the origin; fades in for hero / engines / cta. */
 export default function Arena({ swarmCount }: { swarmCount: number }) {
+  // light theme renders a separate lit "porcelain" world; the dark arena stays exactly as it is
+  const light = useStore((st) => st.theme === "light");
   useFrame((state, dtRaw) => {
     const dt = Math.min(dtRaw, 0.1);
     const s = useStore.getState();
@@ -1092,9 +1078,15 @@ export default function Arena({ swarmCount }: { swarmCount: number }) {
   });
   return (
     <group>
-      <HexFloor />
-      <Monoliths />
-      <Core />
+      {light ? (
+        <PorcelainArena />
+      ) : (
+        <>
+          <HexFloor />
+          <Monoliths />
+          <Core />
+        </>
+      )}
       <Swarms count={swarmCount} />
     </group>
   );

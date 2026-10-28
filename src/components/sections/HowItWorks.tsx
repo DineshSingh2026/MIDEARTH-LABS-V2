@@ -24,7 +24,7 @@ function ArtFrame({ n, art, children }: { n: string; art: string; children: Reac
         <span key={art} className="hw-label">{art}</span>
         <span className="ml-auto flex gap-1.5">
           {STEPS.map((_, i) => (
-            <span key={i} className="h-[3px] rounded-full transition-all duration-700 ease-[cubic-bezier(.16,1,.3,1)]"
+            <span key={i} data-on={i <= idx} className="hw-dot h-[3px] rounded-full transition-all duration-700 ease-[cubic-bezier(.16,1,.3,1)]"
               style={{ width: i === idx ? 22 : 8, background: i <= idx ? "linear-gradient(90deg,#C9A7FF,#6FD0FF)" : "var(--line-strong)", boxShadow: i === idx ? "0 0 10px #A98CFF" : "none" }} />
           ))}
         </span>
@@ -122,13 +122,13 @@ export default function HowItWorks() {
               <span aria-hidden className="pointer-events-none absolute -inset-x-16 -inset-y-12 -z-10" style={{ background: "radial-gradient(closest-side, color-mix(in oklab, var(--ground) 82%, transparent), color-mix(in oklab, var(--ground) 50%, transparent) 60%, transparent)" }} />
               {/* progress line */}
               <span aria-hidden className="absolute bottom-5 left-[19px] top-5 w-px" style={{ background: "var(--line-strong)" }}>
-                <span ref={lineRef} className="absolute inset-0 origin-top" style={{ background: "linear-gradient(180deg,#C9A7FF,#6FD0FF)", transform: "scaleY(0)", boxShadow: "0 0 10px #A98CFF" }} />
+                <span ref={lineRef} className="hw-progress absolute inset-0 origin-top" style={{ background: "linear-gradient(180deg,#C9A7FF,#6FD0FF)", transform: "scaleY(0)", boxShadow: "0 0 10px #A98CFF" }} />
               </span>
               <ol className="relative flex flex-col gap-9">
               {STEPS.map((s, i) => {
                 const on = i === step, past = i < step;
                 return (
-                  <li key={s.n} className="relative flex gap-6 transition-[opacity,transform,filter] duration-700 ease-[cubic-bezier(.16,1,.3,1)]"
+                  <li key={s.n} className="hw-step relative flex gap-6 transition-[opacity,transform,filter] duration-700 ease-[cubic-bezier(.16,1,.3,1)]"
                     style={{ opacity: on ? 1 : 0.35, transform: on ? "translateX(6px)" : "none", filter: on || reduced ? "none" : "saturate(.6)" }} aria-current={on ? "step" : undefined}>
                     <span className="font-display relative z-[1] grid h-10 w-10 shrink-0 place-items-center rounded-full border text-[14px] font-bold transition-all duration-500"
                       style={{

@@ -17,6 +17,7 @@ export default function Grain() {
           75%{background-position:58px -67px}87.5%{background-position:-13px 41px}100%{background-position:0 0}
         }
         @media (prefers-reduced-motion: reduce){.grain-layer{animation:none}}
+        :root[data-theme="light"] .grain-layer{opacity:.015}
       `}</style>
     </div>
   );

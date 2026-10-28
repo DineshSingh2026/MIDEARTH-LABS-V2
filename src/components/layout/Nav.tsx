@@ -105,7 +105,7 @@ export default function Nav() {
             className="nav-pill pointer-events-none absolute left-0 top-0 h-full rounded-full transition-[transform,width,opacity] duration-500 ease-[cubic-bezier(.16,1,.3,1)]"
             style={{ transform: `translateX(${pill.x}px)`, width: pill.w, opacity: pill.on ? 1 : 0 }}
           >
-            <span className="absolute -bottom-[7px] left-1/2 h-[4px] w-[4px] -translate-x-1/2 rounded-full bg-[#6FD0FF] shadow-[0_0_8px_#6FD0FF,0_0_2px_#fff]" />
+            <span className="nav-dot absolute -bottom-[7px] left-1/2 h-[4px] w-[4px] -translate-x-1/2 rounded-full" />
           </span>
           {site.nav.map((l, i) => (
             <li key={l.href} className="relative">
@@ -160,7 +160,7 @@ export default function Nav() {
                 className={`flex items-center justify-between rounded-2xl px-4 py-3.5 text-[16px] font-semibold ${activeIdx === i ? "nav-pill text-ink" : "text-ink-soft"} hover:bg-[color-mix(in_oklab,var(--accent)_10%,transparent)]`}
               >
                 {l.label}
-                {activeIdx === i && <span aria-hidden="true" className="h-[6px] w-[6px] rounded-full bg-[#6FD0FF] shadow-[0_0_10px_#6FD0FF]" />}
+                {activeIdx === i && <span aria-hidden="true" className="nav-dot h-[6px] w-[6px] rounded-full" />}
               </a>
             </li>
           ))}
@@ -203,7 +203,12 @@ export default function Nav() {
           box-shadow:inset 0 0 0 1px color-mix(in oklab,var(--accent) 26%,transparent),inset 0 1px 0 rgba(255,255,255,.08);
         }
         .nav-link:hover:not([aria-current]){background:color-mix(in oklab,var(--ink) 5%,transparent)}
-        :root[data-theme="light"] .nav-shell{box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 10px 30px -14px rgba(40,30,120,.25)}
+        .nav-dot{background:#6FD0FF;box-shadow:0 0 8px #6FD0FF,0 0 2px #fff}
+        /* light: porcelain pill (surface recipe lives in globals.css) */
+        :root[data-theme="light"] .nav-shell::before{background:linear-gradient(100deg,rgba(91,46,224,.22),rgba(17,20,60,.04) 35%,rgba(17,20,60,.04) 65%,rgba(37,99,235,.20))}
+        :root[data-theme="light"] .nav-pill{background:#fff;box-shadow:0 1px 2px rgba(14,17,48,.06),0 4px 12px -4px rgba(14,17,48,.10),inset 0 0 0 1px rgba(17,20,60,.06)}
+        :root[data-theme="light"] .nav-dot{background:#5B2EE0;box-shadow:0 0 0 2px rgba(91,46,224,.12)}
+        :root[data-theme="light"] .nav-link:hover:not([aria-current]){background:rgba(17,20,60,.04)}
       `}</style>
     </header>
   );

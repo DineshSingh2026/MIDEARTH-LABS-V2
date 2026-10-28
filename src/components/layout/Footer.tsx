@@ -82,7 +82,7 @@ export default function Footer() {
           <div aria-hidden="true" className="ft-divider h-px" />
           <div className="flex flex-col gap-3 pt-6 font-mono text-[12px] tracking-[.02em] text-ink-faint sm:flex-row sm:items-center sm:justify-between">
             <span className="inline-flex items-center gap-2">
-              <span aria-hidden="true" className="h-[6px] w-[6px] rounded-full bg-[#6FD0FF] shadow-[0_0_8px_#6FD0FF]" />
+              <span aria-hidden="true" className="ft-dot h-[6px] w-[6px] rounded-full" />
               {f.license}
             </span>
             <span>{f.copyright}</span>
@@ -108,6 +108,12 @@ export default function Footer() {
         .ft.is-in .ft-fill{clip-path:inset(0 0 0 0)}
         .ft-rise{opacity:0;transform:translateY(18px);transition:opacity 1s ${EASE} var(--d),transform 1s ${EASE} var(--d)}
         .ft.is-in .ft-rise{opacity:1;transform:none}
+        .ft-dot{background:#6FD0FF;box-shadow:0 0 8px #6FD0FF}
+        :root[data-theme="light"] .ft-dot{background:#5B2EE0;box-shadow:0 0 0 2px rgba(91,46,224,.12)}
+        :root[data-theme="light"] .ft-divider{background:linear-gradient(90deg,transparent,rgba(91,46,224,.28) 30%,rgba(37,99,235,.24) 70%,transparent)}
+        :root[data-theme="light"] .ft-divider-glow{background:radial-gradient(50% 100% at 50% 0%,rgba(91,46,224,.06),transparent 70%)}
+        :root[data-theme="light"] .ft-stroke{background-image:linear-gradient(180deg,rgba(91,46,224,.065),rgba(91,46,224,.02) 85%)}
+        :root[data-theme="light"] .ft-fill{background-image:linear-gradient(180deg,rgba(91,46,224,.12) 0%,rgba(37,99,235,.06) 50%,rgba(14,165,233,0) 92%)}
         @media (prefers-reduced-motion: reduce){
           .ft-letter,.ft-rise{opacity:1;transform:none;filter:none}
           .ft-fill{clip-path:none}
