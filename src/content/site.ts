@@ -145,10 +145,10 @@ export const site = {
     lede: "Every plan runs on the same agents — upgrade when you need more room, not different software.",
     perMonth: "/month",
     plans: [
-      { name: "Free", price: "$0", custom: false, badge: null, runs: 100, body: "No credit card needed. Run your first agents right away.", features: ["1 agent workspace", "100 runs / month", "Community support", "Core integrations"] },
-      { name: "Pro", price: "$19", custom: false, badge: "Most popular", runs: 5000, body: "For a small team running agents and routines every day.", features: ["5 agent workspaces", "5,000 runs / month", "Every integration", "Priority support", "Run history & replay"] },
-      { name: "Team", price: "$49", custom: false, badge: null, runs: 25000, body: "More seats, more headroom, and controls for a growing team.", features: ["Unlimited agent workspaces", "25,000 runs / month", "Role-based access", "Audit log", "Priority support"] },
-      { name: "Enterprise", price: "Custom quote", custom: true, badge: null, runs: null, body: "High-volume usage, custom limits, and dedicated support tailored to how your team works.", features: ["Custom run volume", "SSO & SAML", "Dedicated support", "SLA & custom contract"] },
+      { name: "Free", price: "$0", custom: false, badge: null, runs: 100, cta: { label: "Start for free", href: "#download" }, body: "No credit card needed. Run your first agents right away.", features: ["1 agent workspace", "100 runs / month", "Community support", "Core integrations"] },
+      { name: "Pro", price: "$19", custom: false, badge: "Most popular", runs: 5000, cta: { label: "Get Pro", href: "#download" }, body: "For a small team running agents and routines every day.", features: ["5 agent workspaces", "5,000 runs / month", "Every integration", "Priority support", "Run history & replay"] },
+      { name: "Team", price: "$49", custom: false, badge: null, runs: 25000, cta: { label: "Get Team", href: "#download" }, body: "More seats, more headroom, and controls for a growing team.", features: ["Unlimited agent workspaces", "25,000 runs / month", "Role-based access", "Audit log", "Priority support"] },
+      { name: "Enterprise", price: "Custom quote", custom: true, badge: null, runs: null, cta: { label: "Talk to the team", href: "#demo" }, body: "High-volume usage, custom limits, and dedicated support tailored to how your team works.", features: ["Custom run volume", "SSO & SAML", "Dedicated support", "SLA & custom contract"] },
     ],
   },
 

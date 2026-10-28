@@ -50,7 +50,7 @@ function PlanCard({ plan, i, hovered }: { plan: Plan; i: number; hovered: boolea
   const set = useStore((s) => s.set);
   const pro = !!plan.badge;
   const pct = meterPct(plan.runs);
-  const cta = plan.custom ? site.cta.button : { label: pricing.title, href: "#download" };
+  const cta = plan.cta;
 
   return (
     <div
