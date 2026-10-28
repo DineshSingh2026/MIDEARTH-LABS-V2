@@ -41,7 +41,7 @@ export default function ChatStream({ active, reduced }: { active: boolean; reduc
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2" strokeLinecap="round"><path d="M8 8h8a3 3 0 0 1 3 3v5a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3v-5a3 3 0 0 1 3-3zM12 4v4M9.5 13.5h1M13.5 13.5h1" /></svg>
           </span>
           <span className="text-[14px] font-bold" style={{ color: "var(--ink)" }}>agent</span>
-          <span className="h-1.5 w-1.5 rounded-full" style={{ background: "#28C840", boxShadow: "0 0 8px #28C840" }} />
+          <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--ok,#28C840)", boxShadow: "0 0 8px var(--ok,#28C840)" }} />
         </div>
         {/* spinner, crossed out */}
         <span className="relative grid h-8 w-8 place-items-center">
@@ -73,7 +73,7 @@ export default function ChatStream({ active, reduced }: { active: boolean; reduc
             <div className="mono flex items-center gap-2 px-3 py-2 text-[12px]" style={{ color: "var(--ink-soft)" }}>
               <svg width="10" height="10" viewBox="0 0 10 10" style={{ transform: open ? "rotate(90deg)" : "none", transition: "transform .3s" }}><path d="M3 1.5L7 5L3 8.5" fill="none" stroke="currentColor" strokeWidth="1.5" /></svg>
               <span>tool_call · read_file</span>
-              <span className="ml-auto" style={{ color: open ? "#28C840" : "var(--ink-faint)" }}>{open ? "✓" : "…"}</span>
+              <span className="ml-auto" style={{ color: open ? "var(--ok,#28C840)" : "var(--ink-faint)" }}>{open ? "✓" : "…"}</span>
             </div>
             <motion.div initial={false} animate={{ height: open ? "auto" : 0 }} transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }} className="overflow-hidden">
               <div className="flex flex-col gap-1.5 border-t px-3 py-2.5" style={{ borderColor: "var(--line)" }}>

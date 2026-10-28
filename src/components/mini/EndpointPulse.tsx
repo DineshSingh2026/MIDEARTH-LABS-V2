@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { useStore } from "@/lib/store";
 
 const CYCLE = 2.6; // seconds
 const X0 = 62, XC = 262, YC = 96;
@@ -16,6 +17,7 @@ function pos(p: number) {
 
 /** 02 · A request packet travels into an isolated, shielded endpoint and returns. Latency readout is an example. */
 export default function EndpointPulse({ running, reduced, accent = "#6FD0FF" }: { running: boolean; reduced: boolean; accent?: string }) {
+  const L = useStore((s) => s.theme) === "light";
   const [p, setP] = useState(0.45);
   const shown = useRef({ from: 0, to: 0, t0: 0 });
   const [disp, setDisp] = useState<number | null>(null);
@@ -77,18 +79,18 @@ export default function EndpointPulse({ running, reduced, accent = "#6FD0FF" }: 
           <circle cx={XC} cy={YC} r={56} fill="url(#ep-bub)" />
           <rect x={XC - 56} y={YC - 56} width={112} height={112} fill="url(#ep-hex)" clipPath="url(#ep-clip)" opacity={0.6 + inside * 0.4} />
           <circle cx={XC} cy={YC} r={56} fill="none" stroke={accent} strokeOpacity={0.55 + inside * 0.45} strokeWidth={1.2} />
-          <ellipse cx={XC - 18} cy={YC - 30} rx={20} ry={8} fill="#fff" opacity={0.08} transform={`rotate(-30 ${XC - 18} ${YC - 30})`} />
+          <ellipse cx={XC - 18} cy={YC - 30} rx={20} ry={8} fill="#fff" opacity={L ? 0.7 : 0.08} transform={`rotate(-30 ${XC - 18} ${YC - 30})`} />
         </g>
         <circle cx={XC} cy={YC} r={56 + ring * 26} fill="none" stroke={accent} strokeWidth={1.5} opacity={ring ? (1 - ring) * 0.8 : 0} />
         {/* container core */}
-        <rect x={XC - 20} y={YC - 20} width={40} height={40} rx={9} fill="rgba(6,8,26,.6)" stroke={accent} strokeOpacity={0.5 + inside * 0.5} />
+        <rect x={XC - 20} y={YC - 20} width={40} height={40} rx={9} fill={L ? "#FFFFFF" : "rgba(6,8,26,.6)"} stroke={accent} strokeOpacity={0.5 + inside * 0.5} />
         <path d={`M${XC} ${YC - 11} l8 3.4 v5.2 c0 5 -3.4 8.2 -8 10 c-4.6 -1.8 -8 -5 -8 -10 v-5.2 z`} fill={accent} fillOpacity={0.2 + inside * 0.5} stroke={accent} strokeWidth={1.2} />
         <text x={XC} y={YC + 72} textAnchor="middle" className="mono" fontSize="8.5" fill="var(--ink-faint)" letterSpacing="1.5">ISOLATED</text>
         {/* packet with comet trail */}
         {trail.map((t, k) => <circle key={k} cx={t.x} cy={t.y} r={3.4 * (1 - k / 12)} fill={accent} opacity={0.55 * (1 - k / 12)} />)}
         {head && <>
           <circle cx={head.x} cy={head.y} r={9} fill={accent} opacity={0.35} filter="url(#ep-glow)" />
-          <circle cx={head.x} cy={head.y} r={3.6} fill="#fff" />
+          <circle cx={head.x} cy={head.y} r={3.6} fill={L ? accent : "#fff"} stroke={L ? "#fff" : "none"} strokeWidth={1.4} />
         </>}
       </svg>
       <div className="mono pointer-events-none absolute left-3 top-2.5 flex items-center gap-2 text-[11px]">

@@ -172,6 +172,12 @@ export default function HowItWorks() {
         .hw-topglow{position:absolute;left:14%;right:14%;top:-1px;height:1px;background:linear-gradient(90deg,transparent,#C9A7FF,#6FD0FF,transparent);box-shadow:0 0 18px 2px rgba(169,140,255,.6)}
         .hw-label{animation:hw-label .6s cubic-bezier(.16,1,.3,1)}
         @keyframes hw-label{from{opacity:0;transform:translateY(6px);filter:blur(4px)}}
+        :root[data-theme="light"] .hw-frame{--ok:#16A34A;
+          background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(250,248,255,.85));border-color:rgba(91,46,224,.18);
+          box-shadow:0 40px 90px -40px rgba(91,46,224,.3),0 12px 30px -18px rgba(91,46,224,.16),inset 0 1px 0 #fff}
+        :root[data-theme="light"] .hw-frame::after{background:radial-gradient(70% 45% at 50% 0%,rgba(91,46,224,.07),transparent 70%),radial-gradient(60% 40% at 100% 100%,rgba(31,111,214,.05),transparent 70%)}
+        :root[data-theme="light"] .hw-topglow{background:linear-gradient(90deg,transparent,#8B6BFF,#1F6FD6,transparent);box-shadow:0 0 12px 1px rgba(91,46,224,.3)}
+        :root[data-theme="light"] .ha-panel{background:#FFFFFF!important;box-shadow:0 12px 30px -18px rgba(91,46,224,.32),0 1px 2px rgba(91,46,224,.06)}
       `}</style>
     </section>
   );

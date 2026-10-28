@@ -19,11 +19,11 @@ function Local({ active, reduced }: { active: boolean; reduced: boolean }) {
   const pathOn = n > ADDR.length;
   const rows = Math.max(0, n - ADDR.length - 1);
   return (
-    <div className="flex h-full w-full flex-col overflow-hidden rounded-2xl border" style={{ borderColor: "var(--line-strong)", background: "color-mix(in oklab, var(--surface-flat) 55%, transparent)" }} aria-hidden>
+    <div className="ha-panel flex h-full w-full flex-col overflow-hidden rounded-2xl border" style={{ borderColor: "var(--line-strong)", background: "color-mix(in oklab, var(--surface-flat) 55%, transparent)" }} aria-hidden>
       <div className="flex items-center gap-3 border-b px-4 py-3" style={{ borderColor: "var(--line)" }}>
-        <span className="flex gap-1.5">{["#FF5F57", "#FEBC2E", "#28C840"].map((c) => <span key={c} className="h-2.5 w-2.5 rounded-full" style={{ background: c }} />)}</span>
+        <span className="flex gap-1.5">{["#FF5F57", "#FEBC2E", "var(--ok,#28C840)"].map((c) => <span key={c} className="h-2.5 w-2.5 rounded-full" style={{ background: c }} />)}</span>
         <span className="mono flex h-7 flex-1 items-center gap-2 rounded-full border px-3 text-[12px]" style={{ borderColor: "var(--line)", color: "var(--ink-soft)" }}>
-          <svg width="10" height="12" viewBox="0 0 18 20" fill="none" stroke="#28C840" strokeWidth="2"><path d="M4.5 9V6a4.5 4.5 0 0 1 9 0v3" /><rect x="2" y="9" width="14" height="10" rx="2.5" /></svg>
+          <svg width="10" height="12" viewBox="0 0 18 20" fill="none" style={{ stroke: "var(--ok,#28C840)" }} strokeWidth="2"><path d="M4.5 9V6a4.5 4.5 0 0 1 9 0v3" /><rect x="2" y="9" width="14" height="10" rx="2.5" /></svg>
           {typed}
           <span className="inline-block h-3.5 w-[1.5px]" style={{ background: "var(--accent)", opacity: n < ADDR.length ? 1 : 0 }} />
         </span>
@@ -58,9 +58,9 @@ function Engines({ active, reduced }: { active: boolean; reduced: boolean }) {
           const cmd = n >= 1 + i * 2, ready = n >= 2 + i * 2;
           const len = e.length + 2;
           return (
-            <div key={e} className="overflow-hidden rounded-xl border" style={{ borderColor: ready ? "color-mix(in oklab, #28C840 55%, transparent)" : "var(--line-strong)", background: "color-mix(in oklab, var(--surface-flat) 60%, transparent)", transition: "border-color .4s" }}>
+            <div key={e} className="ha-panel overflow-hidden rounded-xl border" style={{ borderColor: ready ? "color-mix(in oklab, var(--ok,#28C840) 55%, transparent)" : "var(--line-strong)", background: "color-mix(in oklab, var(--surface-flat) 60%, transparent)", transition: "border-color .4s" }}>
               <div className="mono flex items-center gap-2 border-b px-3 py-2 text-[11px]" style={{ borderColor: "var(--line)", color: "var(--ink-faint)" }}>
-                <span className="h-2 w-2 rounded-full transition-all duration-300" style={{ background: ready ? "#28C840" : cmd ? "#FEBC2E" : "var(--line-strong)", boxShadow: ready ? "0 0 8px #28C840" : "none" }} />
+                <span className="h-2 w-2 rounded-full transition-all duration-300" style={{ background: ready ? "var(--ok,#28C840)" : cmd ? "#FEBC2E" : "var(--line-strong)", boxShadow: ready ? "0 0 8px var(--ok,#28C840)" : "none" }} />
                 {e}
               </div>
               <div className="mono flex min-h-[64px] flex-col gap-1 px-3 py-2.5 text-[12px]">
@@ -70,7 +70,7 @@ function Engines({ active, reduced }: { active: boolean; reduced: boolean }) {
                     <span className="inline-block overflow-hidden whitespace-nowrap align-bottom" style={{ width: `${len - 2}ch`, animation: reduced ? "none" : `ha-type .45s steps(${len - 2}) both` }}>{e}</span>
                   </span>
                 )}
-                {ready && <motion.span initial={reduced ? false : { opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} style={{ color: "#28C840" }}>● ready</motion.span>}
+                {ready && <motion.span initial={reduced ? false : { opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} style={{ color: "var(--ok,#28C840)" }}>● ready</motion.span>}
               </div>
             </div>
           );
@@ -78,7 +78,7 @@ function Engines({ active, reduced }: { active: boolean; reduced: boolean }) {
       </div>
       <div className="flex justify-center">
         <motion.span initial={false} animate={{ opacity: n >= 7 ? 1 : 0, scale: n >= 7 ? 1 : 0.9 }} className="mono inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-[12px]"
-          style={{ borderColor: "#28C840", color: "#28C840", background: "color-mix(in oklab, #28C840 10%, transparent)" }}>
+          style={{ borderColor: "var(--ok,#28C840)", color: "var(--ok,#28C840)", background: "color-mix(in oklab, var(--ok,#28C840) 10%, transparent)" }}>
           ✓ All ready
         </motion.span>
       </div>
@@ -90,7 +90,7 @@ function Engines({ active, reduced }: { active: boolean; reduced: boolean }) {
 function ArtBody({ art, active, reduced }: { art: HowArtKind; active: boolean; reduced: boolean }) {
   if (art === "local") return <Local active={active} reduced={reduced} />;
   if (art === "engines") return <Engines active={active} reduced={reduced} />;
-  if (art === "stream") return <div className="h-full w-full rounded-2xl border p-5" style={{ borderColor: "var(--line-strong)", background: "color-mix(in oklab, var(--surface-flat) 55%, transparent)" }}><ChatStream active={active} reduced={reduced} /></div>;
+  if (art === "stream") return <div className="ha-panel h-full w-full rounded-2xl border p-5" style={{ borderColor: "var(--line-strong)", background: "color-mix(in oklab, var(--surface-flat) 55%, transparent)" }}><ChatStream active={active} reduced={reduced} /></div>;
   return <div className="flex h-full w-full items-center"><AllowDenyCard reduced={reduced} /></div>;
 }
 

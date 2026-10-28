@@ -239,13 +239,13 @@ export default function Hero() {
         <div aria-hidden className="hidden lg:block" />
       </div>
 
-      <div className="absolute bottom-[calc(15vh+40px)] hidden lg:block" style={{ right: `calc(${GUTTER} + 22px)` }}>
+      <div className="hero-plate absolute bottom-[calc(15vh+40px)] hidden lg:block" style={{ right: `calc(${GUTTER} + 22px)` }}>
         <Lockup go={go} />
       </div>
 
       <p className="sr-only">{H.sceneAlt}</p>
 
-      <a href="#features" className={`hero-fade absolute inset-x-0 bottom-7 z-[1] mx-auto flex w-max items-center gap-3 ${go ? "in" : ""}`}
+      <a href="#features" className={`hero-fade hero-plate absolute inset-x-0 bottom-7 z-[1] mx-auto flex w-max items-center gap-3 ${go ? "in" : ""}`}
         style={{ animationDelay: `${T_CHIPS + 900}ms` }}>
         <span aria-hidden className="relative block h-[34px] w-[22px] rounded-full border-[1.5px]" style={{ borderColor: "var(--line-strong)" }}>
           <span className="hero-wheel absolute left-1/2 top-[7px] h-[7px] w-[3px] -translate-x-1/2 rounded-full" style={{ background: "var(--accent)" }} />
@@ -255,7 +255,13 @@ export default function Hero() {
 
       <style>{`
         .hero-blob{position:absolute;border-radius:999px;filter:blur(70px);opacity:.38;mix-blend-mode:screen;animation:hero-drift 26s ease-in-out infinite alternate}
-        :root[data-theme="light"] .hero-blob{mix-blend-mode:multiply;opacity:.12}
+        :root[data-theme="light"] .hero-blob{mix-blend-mode:normal;opacity:.16;filter:blur(90px)}
+        :root[data-theme="light"] .hero-plane{background-image:linear-gradient(rgba(91,46,224,.22) 1px,transparent 1px),linear-gradient(90deg,rgba(31,111,214,.16) 1px,transparent 1px)}
+        :root[data-theme="light"] .hero-horizon{background:linear-gradient(90deg,transparent,#8B6BFF,#1F6FD6,transparent);box-shadow:0 0 22px 3px rgba(91,46,224,.22);opacity:.6}
+        :root[data-theme="light"] .hero-plate{background:rgba(255,255,255,.72);backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);border:1px solid rgba(91,46,224,.14);border-radius:16px;padding:10px 16px;box-shadow:0 12px 30px -16px rgba(91,46,224,.3)}
+        :root[data-theme="light"] .hero-ch{text-shadow:0 10px 40px rgba(91,46,224,.16)}
+        :root[data-theme="light"] .hero-chip{background:linear-gradient(rgba(255,255,255,.88),rgba(255,255,255,.88)) padding-box,linear-gradient(120deg,rgba(91,46,224,.35),rgba(31,111,214,.12) 50%,rgba(91,46,224,.25)) border-box;box-shadow:0 6px 18px -10px rgba(91,46,224,.25)}
+        :root[data-theme="light"] .hero-chip:hover,:root[data-theme="light"] .hero-chip:focus-visible{background:linear-gradient(#fff,#fff) padding-box,linear-gradient(120deg,#5B2EE0,#1F6FD6) border-box;box-shadow:0 14px 30px -12px rgba(91,46,224,.4),0 0 0 4px rgba(91,46,224,.08)}
         @keyframes hero-drift{0%{transform:translate3d(0,0,0) scale(1)}50%{transform:translate3d(6vw,4vh,0) scale(1.12)}100%{transform:translate3d(-4vw,-3vh,0) scale(.94)}}
         .hero-floor{height:34vh;perspective:420px;perspective-origin:50% 0%;-webkit-mask-image:linear-gradient(to top,#000 10%,rgba(0,0,0,.6) 45%,transparent 92%);mask-image:linear-gradient(to top,#000 10%,rgba(0,0,0,.6) 45%,transparent 92%)}
         .hero-plane{position:absolute;left:-60%;right:-60%;top:0;height:220%;transform-origin:50% 0;transform:rotateX(64deg);

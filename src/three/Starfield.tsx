@@ -80,11 +80,11 @@ export default function Starfield({ density = 1 }: { density?: number }) {
     if (theme.current !== s.theme) {
       theme.current = s.theme;
       const light = s.theme === "light";
-      uniforms.uCol.value.set(light ? "#3C2E9E" : "#C9D6FF");
+      uniforms.uCol.value.set(light ? "#7B5CF0" : "#C9D6FF");
       mat.blending = light ? THREE.NormalBlending : THREE.AdditiveBlending;
       mat.needsUpdate = true;
     }
-    const goal = (s.booted ? 1 : 0) * (s.theme === "light" ? 0.35 : 0.9);
+    const goal = (s.booted ? 1 : 0) * (s.theme === "light" ? 0.28 : 0.9);
     uniforms.uOpacity.value += (goal - uniforms.uOpacity.value) * (1 - Math.pow(0.97, dt * 60));
     uniforms.uTime.value = state.clock.elapsedTime;
     uniforms.uScale.value = pointScale(state);

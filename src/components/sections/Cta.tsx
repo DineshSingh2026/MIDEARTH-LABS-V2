@@ -46,8 +46,8 @@ export default function Cta() {
         <div className="burst-core" />
       </div>
       <div className="container-x relative flex flex-col items-center gap-9 text-center">
-        <h2 ref={h2} aria-label={cta.headline} className="font-display font-extrabold"
-          style={{ fontSize: "clamp(40px, 6vw, 88px)", lineHeight: 1.04, letterSpacing: "-0.04em", maxWidth: "15ch", textShadow: "0 4px 40px rgba(6,8,26,.45)" }}>
+        <h2 ref={h2} aria-label={cta.headline} className="cta-h2 font-display font-extrabold"
+          style={{ fontSize: "clamp(40px, 6vw, 88px)", lineHeight: 1.04, letterSpacing: "-0.04em", maxWidth: "15ch" }}>
           {WORDS.map(({ w, grad }, i) => (
             <Fragment key={i}>
               <span aria-hidden className="inline-block overflow-hidden align-bottom pb-[0.12em] -mb-[0.12em]">

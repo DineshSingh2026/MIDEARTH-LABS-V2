@@ -73,8 +73,8 @@ export default function EventRiver({ count }: { count: number }) {
       themeRef.current = s.theme;
       const light = s.theme === "light";
       u.uLight.value = light ? 1 : 0;
-      u.uC2.value.set(light ? "#1A1A2E" : engineColor.grok ?? "#FFFFFF");
-      u.uWhite.value.set(light ? "#3C2E9E" : "#FFFFFF");
+      u.uC2.value.set(light ? "#14173A" : engineColor.grok ?? "#FFFFFF");
+      u.uWhite.value.set(light ? "#5B2EE0" : "#FFFFFF");
       mat.blending = light ? THREE.NormalBlending : THREE.AdditiveBlending;
       mat.needsUpdate = true;
     }

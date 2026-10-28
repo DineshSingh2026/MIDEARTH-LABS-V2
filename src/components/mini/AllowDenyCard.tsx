@@ -14,7 +14,7 @@ export default function AllowDenyCard({ reduced = false }: { reduced?: boolean }
     return () => clearTimeout(t);
   }, [s]);
 
-  const col = s === "allow" ? "#28C840" : s === "deny" ? "#FF5F57" : "var(--line-strong)";
+  const col = s === "allow" ? "var(--ok,#28C840)" : s === "deny" ? "#FF5F57" : "var(--line-strong)";
   const status = s === "allow" ? "proceeds" : s === "deny" ? "blocked" : "Allow or Deny";
 
   return (
@@ -22,14 +22,14 @@ export default function AllowDenyCard({ reduced = false }: { reduced?: boolean }
       <motion.div
         animate={s === "deny" && !reduced ? { x: [0, -10, 9, -7, 5, -3, 0] } : { x: 0 }}
         transition={{ duration: 0.5 }}
-        className="relative rounded-2xl border p-5"
+        className="ha-panel relative rounded-2xl border p-5"
         style={{ borderColor: col, background: "color-mix(in oklab, var(--surface-flat) 60%, transparent)", transition: "border-color .3s" }}
       >
         <AnimatePresence>
           {s === "allow" && !reduced && (
             <motion.span key="pulse" aria-hidden className="pointer-events-none absolute inset-0 rounded-2xl"
               initial={{ opacity: 0.7, scale: 1 }} animate={{ opacity: 0, scale: 1.06 }} exit={{ opacity: 0 }} transition={{ duration: 0.9 }}
-              style={{ boxShadow: "0 0 0 2px #28C840, 0 0 40px #28C840" }} />
+              style={{ boxShadow: "0 0 0 2px var(--ok,#28C840), 0 0 40px var(--ok,#28C840)" }} />
           )}
         </AnimatePresence>
         <div className="flex items-center gap-3">
@@ -46,7 +46,7 @@ export default function AllowDenyCard({ reduced = false }: { reduced?: boolean }
         <div className="mt-5 flex gap-2.5">
           <button type="button" aria-label="Allow the risky action" onClick={() => setS("allow")} disabled={s !== "idle"}
             className="flex-1 rounded-full px-4 py-2.5 text-[14px] font-bold transition-all hover:brightness-110 disabled:opacity-60"
-            style={{ background: "#28C840", color: "#04140A", boxShadow: s === "allow" ? "0 0 24px #28C84088" : "none" }}>
+            style={{ background: "var(--ok,#28C840)", color: "#04140A", boxShadow: s === "allow" ? "0 0 24px color-mix(in oklab, var(--ok,#28C840) 55%, transparent)" : "none" }}>
             Allow
           </button>
           <button type="button" aria-label="Deny the risky action" onClick={() => setS("deny")} disabled={s !== "idle"}
@@ -57,15 +57,15 @@ export default function AllowDenyCard({ reduced = false }: { reduced?: boolean }
         </div>
       </motion.div>
 
-      <div className="group flex items-center gap-3 rounded-xl border px-4 py-3" style={{ borderColor: "var(--line)", background: "color-mix(in oklab, var(--surface-flat) 45%, transparent)" }}
+      <div className="ha-panel group flex items-center gap-3 rounded-xl border px-4 py-3" style={{ borderColor: "var(--line)", background: "color-mix(in oklab, var(--surface-flat) 45%, transparent)" }}
         aria-label="Key configured. The value is never shown." role="group">
         <svg width="18" height="20" viewBox="0 0 18 20" fill="none" stroke="var(--accent)" strokeWidth="1.8" strokeLinecap="round" aria-hidden>
           <path d="M4.5 9V6a4.5 4.5 0 0 1 9 0v3" className="transition-transform duration-200 ease-[cubic-bezier(.3,1.6,.5,1)] [transform:translateY(-3px)] group-hover:[transform:translateY(0)]" />
           <rect x="2" y="9" width="14" height="10" rx="2.5" fill="color-mix(in oklab, var(--accent) 14%, transparent)" />
         </svg>
         <span className="mono select-none text-[15px] tracking-[.2em]" style={{ color: "var(--ink-soft)" }} aria-hidden>••••••••</span>
-        <span className="mono ml-auto flex items-center gap-1.5 text-[11px]" style={{ color: "#28C840" }} aria-hidden>
-          <span className="h-1.5 w-1.5 rounded-full" style={{ background: "#28C840" }} /> configured
+        <span className="mono ml-auto flex items-center gap-1.5 text-[11px]" style={{ color: "var(--ok,#28C840)" }} aria-hidden>
+          <span className="h-1.5 w-1.5 rounded-full" style={{ background: "var(--ok,#28C840)" }} /> configured
         </span>
       </div>
     </div>

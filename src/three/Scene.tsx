@@ -177,7 +177,7 @@ class SafeEffects extends Component<{ children: ReactNode }, { failed: boolean }
 function Effects() {
   const theme = useStore((s) => s.theme);
   const light = theme === "light";
-  const base = light ? 0.35 : 1.1;
+  const base = light ? 0.25 : 1.1;
   // built by hand (not <Bloom ref>) so we can drive intensity per frame; the wrapper JSON-stringifies props
   const bloom = useMemo(
     () => new BloomEffect({ intensity: 1.1, luminanceThreshold: 0.2, luminanceSmoothing: 0.2, mipmapBlur: true, radius: 0.7 }),
@@ -186,14 +186,16 @@ function Effects() {
   useEffect(() => () => bloom.dispose(), [bloom]);
   // boot flash surges the bloom
   useFrame(() => {
-    bloom.intensity = base + runtime.flash * (light ? 0.5 : 1.6);
+    bloom.intensity = base + runtime.flash * (light ? 0.3 : 1.6);
+    // light: only near-white emissive highlights bloom, porcelain tiles must not haze
+    bloom.luminanceMaterial.threshold = light ? 0.9 : 0.2;
   });
   return (
     <EffectComposer multisampling={0} enableNormalPass={false}>
       <primitive object={bloom} dispose={null} />
-      <Vignette offset={0.3} darkness={light ? 0.25 : 0.55} eskil={false} />
-      {/* premultiply: grain only modulates rendered particles, never paints the transparent background */}
-      <Noise premultiply opacity={light ? 0.15 : 0.35} blendFunction={BlendFunction.NORMAL} />
+      <Vignette offset={0.3} darkness={light ? 0 : 0.55} eskil={false} />
+      {/* premultiply: grain only modulates rendered particles, never paints the transparent background; none in light */}
+      <Noise premultiply opacity={light ? 0 : 0.35} blendFunction={BlendFunction.NORMAL} />
     </EffectComposer>
   );
 }

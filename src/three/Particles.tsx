@@ -20,7 +20,7 @@ type S = ReturnType<typeof useStore.getState>;
 
 export const PALETTE = {
   dark: { a: new THREE.Color("#A98CFF"), b: new THREE.Color("#6FD0FF") },
-  light: { a: new THREE.Color("#3C2E9E"), b: new THREE.Color("#1F6FD6") },
+  light: { a: new THREE.Color("#5B2EE0"), b: new THREE.Color("#1F6FD6") },
 };
 
 const INTRO_DUR = 2.4;

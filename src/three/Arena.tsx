@@ -18,8 +18,18 @@ import { rng } from "./targets/util";
 const VIOLET = new THREE.Color("#A98CFF");
 const CYAN = new THREE.Color("#6FD0FF");
 const MAGENTA = new THREE.Color("#FF6AD5");
-const INK_A = new THREE.Color("#3C2E9E");
-const INK_B = new THREE.Color("#1F6FD6");
+/** Light theme ("daylight observatory"): porcelain ground, ink, saturated accents. THREE.Color stores linear values. */
+const LT = {
+  violet: new THREE.Color("#5B2EE0"),
+  edgeA: new THREE.Color("#6B3FE8"),
+  blue: new THREE.Color("#1F6FD6"),
+  cyan: new THREE.Color("#2BB3E6"),
+  magenta: new THREE.Color("#C44BE0"),
+  ink: new THREE.Color("#14173A"),
+  tile0: new THREE.Color("#FBFAFF"),
+  tile1: new THREE.Color("#EEE9FF"),
+  ao: new THREE.Color("#DCD3FA"),
+};
 const WHITE = new THREE.Color(1, 1, 1);
 
 const TEAM_HEX = [engineColor.claude, engineColor.codex, engineColor.grok, engineColor.gemini, ACCENT];
@@ -126,6 +136,10 @@ uniform float uFlash;
 uniform vec3 uA;
 uniform vec3 uB;
 uniform vec3 uFlashCol;
+uniform vec3 uLC;
+uniform vec3 uG0;
+uniform vec3 uG1;
+uniform vec3 uAO;
 uniform vec4 uRip[${N_RIP}];
 uniform vec4 uOrb[${N_ORB}];
 uniform float uLeftDim;
@@ -178,6 +192,7 @@ void main() {
   vec3 base = mix(vec3(0.004, 0.0035, 0.012), vec3(0.011, 0.008, 0.03), seed);
   vec3 col;
   float hd = hexd(vLocal.xz);
+  float led = 0.0;
   if (vTop > 0.5) {
     float edge = smoothstep(0.83, 0.97, hd);
     float inner = smoothstep(0.55, 0.0, hd);
@@ -199,20 +214,35 @@ void main() {
       float on = step(0.45, hash(floor(rows) * 12.99 + floor(colsF) * 78.23 + seed * 43.0));
       float blink = step(0.25, fract(uTime * (0.3 + seed) + hash(floor(rows) + seed * 7.0)));
       float d2 = length(vec2(fract(rows) - 0.5, fract(colsF) - 0.5));
-      float led = smoothstep(0.32, 0.12, d2) * on * blink * step(0.08, y) * step(y, 0.92);
+      led = smoothstep(0.32, 0.12, d2) * on * blink * step(0.08, y) * step(y, 0.92);
       col += mix(uB, vec3(0.55, 1.0, 0.8), seed) * led * 1.8;
     }
   }
   col *= mix(0.25, 1.0, lit);
   col += edgeCol * ignite * 0.6 * (vTop > 0.5 ? smoothstep(0.7, 1.0, hd) : 0.3);
-  // light theme: pale glass tiles with ink rims
-  vec3 lightCol = mix(vec3(0.95, 0.94, 0.99) - seed * 0.03, edgeCol, clamp((vTop > 0.5 ? smoothstep(0.83, 0.97, hd) : 0.15) * (0.6 + act), 0.0, 1.0));
-  col = mix(col, lightCol, uLight);
+  // ---- light theme: porcelain tiles, crisp saturated violet->blue rims, violet AO, colour sweeps
+  vec3 L;
+  float sweep = clamp(beat * 0.9 + rip * 1.4 + orb * 1.2 + sec * 0.8 + ignite * 1.2 + pool * 0.4, 0.0, 1.0);
+  vec3 accent = mix(uA, uLC, 0.5 + 0.5 * sin(seed * 6.2831 + r * 0.3 - uTime * 0.2));
+  vec3 rimCol = mix(uA, uB, 0.5 + 0.5 * sin(seed * 5.0 + r * 0.22));
+  if (vTop > 0.5) {
+    L = mix(uG0, uG1, seed * 0.6 + (1.0 - fog) * 0.4);
+    L = mix(L, uAO, smoothstep(0.7, 0.86, hd) * 0.6);
+    L = mix(L, accent, sweep * 0.32 * (1.0 - hd * 0.4));
+    L = mix(L, rimCol, smoothstep(0.86, 0.93, hd) * (0.8 + sweep * 0.2));
+  } else {
+    float y = vLocal.y + 0.5;
+    L = mix(uAO, uG0, y);
+    L = mix(L, rimCol, smoothstep(0.9, 1.0, y) * 0.85);
+    L = mix(L, accent, led);
+  }
+  col = mix(col, L, uLight);
   float sx = gl_FragCoord.x / uResX;
   float dim = mix(1.0, mix(0.22, 1.0, smoothstep(0.12, 0.55, sx)), uLeftDim);
   float near = smoothstep(mix(3.0, 9.5, uNearK), mix(7.5, 16.0, uNearK), distance(cameraPosition, vWorld));
-  near = near * near * (uNearK > 0.01 ? near : 1.0); // steeper so faded dark glass never reads as a silhouette
-  gl_FragColor = vec4(col * mix(dim, 1.0, uLight), fog * near * uVis * mix(1.0, dim, uLight));
+  near = near * near * ((uNearK > 0.01 || uLight > 0.5) ? near : 1.0); // steeper so faded glass never reads as a silhouette
+  // light: tiles fade (alpha) into the porcelain ground = fog colour
+  gl_FragColor = vec4(col * mix(dim, 1.0, uLight), fog * near * uVis * mix(1.0, dim * mix(0.3, 1.0, lit) * (1.0 - 0.65 * uNearK), uLight));
 }
 `;
 
@@ -233,6 +263,7 @@ function HexFloor() {
       uA: { value: VIOLET.clone() }, uB: { value: CYAN.clone() }, uFlashCol: { value: new THREE.Color("#ffffff") },
       uRip: { value: arena.rip }, uOrb: { value: arena.orbs },
       uLeftDim: { value: 0 }, uResX: { value: 1 }, uNearK: { value: 0 },
+      uLC: { value: LT.cyan.clone() }, uG0: { value: LT.tile0.clone() }, uG1: { value: LT.tile1.clone() }, uAO: { value: LT.ao.clone() },
     };
     const mat = new THREE.ShaderMaterial({ vertexShader: floorVert, fragmentShader: floorFrag, uniforms, transparent: true, depthWrite: true });
     const mesh = new THREE.InstancedMesh(geo, mat, n);
@@ -269,8 +300,8 @@ function HexFloor() {
       st.theme = s.theme;
       const light = s.theme === "light";
       u.uLight.value = light ? 1 : 0;
-      u.uA.value.copy(light ? INK_A : VIOLET);
-      u.uB.value.copy(light ? INK_B : CYAN);
+      u.uA.value.copy(light ? LT.edgeA : VIOLET);
+      u.uB.value.copy(light ? LT.blue : CYAN);
     }
     u.uTime.value = state.clock.elapsedTime;
     u.uVis.value = arena.vis;
@@ -339,9 +370,9 @@ void main() {
   float pulse = 0.5 + 0.5 * sin(uTime * 2.2);
   vec3 col = irid * (0.22 + pow(f, 1.4) * 1.7) + vec3(1.0, 0.95, 1.0) * (1.0 - f) * (0.18 + pulse * 0.22);
   col += uFlashCol * uFlash * (0.6 + f);
-  vec3 lightCol = mix(irid * 0.85, vec3(0.2, 0.15, 0.45), 1.0 - f);
+  vec3 lightCol = irid * (0.5 + pow(f, 1.2) * 0.55) + vec3(1.0) * pow(1.0 - f, 3.0) * 0.18;
   col = mix(col, lightCol, uLight);
-  gl_FragColor = vec4(col, (0.62 + f * 0.38) * uVis);
+  gl_FragColor = vec4(col, mix(0.62 + f * 0.38, 0.9, uLight) * uVis);
 }
 `;
 const beamVert = /* glsl */ `
@@ -417,15 +448,24 @@ function Core() {
       parts.mat.uniforms.uLight.value = light ? 1 : 0;
       parts.glow.uniforms.uLight.value = light ? 1 : 0;
       const b = light ? THREE.NormalBlending : THREE.AdditiveBlending;
-      for (const m of [...parts.ringMats, parts.beamMat, parts.glow.mat, parts.innerMat]) { m.blending = b; m.needsUpdate = true; }
+      for (const m of [...parts.ringMats, parts.beamMat, parts.glow.mat, parts.innerMat, parts.edgeMat]) { m.blending = b; m.needsUpdate = true; }
+      const cu = parts.mat.uniforms;
+      cu.uV.value.copy(light ? LT.violet : VIOLET);
+      cu.uC.value.copy(light ? LT.blue : CYAN);
+      cu.uM.value.copy(light ? LT.magenta : MAGENTA);
+      parts.edgeMat.color.set(light ? "#3A1FB0" : "#DDF4FF");
+      parts.ringMats[0].color.copy(light ? LT.blue : CYAN);
+      parts.ringMats[1].color.copy(light ? LT.violet : VIOLET);
+      parts.ringMats[2].color.copy(light ? LT.magenta : MAGENTA);
+      parts.beamMat.uniforms.uCol.value.set(light ? "#8B6CF2" : "#B9A4FF");
     }
     if (group.current) group.current.visible = v > 0.01;
     const cta = s.chapter === "cta";
     const pulse = 0.5 + 0.5 * Math.sin(t * 2.2);
     const u = parts.mat.uniforms;
     u.uTime.value = t; u.uVis.value = v; u.uFlash.value = arena.flash; u.uFlashCol.value.copy(arena.flashCol);
-    parts.innerMat.opacity = v * (0.5 + pulse * 0.4 + arena.flash);
-    parts.edgeMat.opacity = v * (light ? 0.5 : 0.75 + arena.flash * 0.25);
+    parts.innerMat.opacity = v * (light ? 0 : 0.5 + pulse * 0.4 + arena.flash);
+    parts.edgeMat.opacity = v * (light ? 0.9 : 0.75 + arena.flash * 0.25);
     parts.innerMat.color.copy(arena.flash > 0.05 ? arena.flashCol : CYAN).lerp(WHITE, 0.5);
     parts.ringMats.forEach((m, i) => { m.opacity = v * (light ? 0.6 : 0.5 + (cta ? 0.3 : 0)) * (0.7 + 0.3 * Math.sin(t * 1.3 + i)); });
     parts.beamMat.uniforms.uTime.value = t;
@@ -449,7 +489,7 @@ function Core() {
     al[0] = 0.9; al[1] = 0.22 + arena.flash * 0.3;
     const c0 = arena.flash > 0.05 ? arena.flashCol : VIOLET;
     co[0] = c0.r; co[1] = c0.g; co[2] = c0.b;
-    co[3] = 0.45; co[4] = 0.35; co[5] = 0.95;
+    if (light) { co[3] = LT.edgeA.r; co[4] = LT.edgeA.g; co[5] = LT.edgeA.b; } else { co[3] = 0.45; co[4] = 0.35; co[5] = 0.95; }
     g.pos.needsUpdate = true; g.size.needsUpdate = true; g.alpha.needsUpdate = true; g.col.needsUpdate = true;
     g.uniforms.uVis.value = v * (light ? 0.5 : 1);
     g.uniforms.uScale.value = pointScale(state);
@@ -479,6 +519,13 @@ const monoColors = ENGINES.map((e, i) => {
   // non-branded engines: accent violet drifting toward cyan around the ring
   return VIOLET.clone().lerp(CYAN, (i % 5) / 8);
 });
+/** Light theme: saturated on porcelain (grok white becomes ink). */
+const monoColorsL = ENGINES.map((e, i) => {
+  if (e.slug === "grok") return LT.ink.clone();
+  const hex = engineColor[e.slug];
+  if (hex) return new THREE.Color(hex);
+  return LT.edgeA.clone().lerp(LT.blue, (i % 5) / 7);
+});
 const monoPos = ENGINES.map((_, i) => {
   const a = (i / N_MONO) * Math.PI * 2 + Math.PI / N_MONO;
   return new THREE.Vector3(Math.cos(a) * MONO_R, 0, Math.sin(a) * MONO_R);
@@ -487,6 +534,7 @@ const monoH = ENGINES.map((_, i) => 2.3 + ((i * 7) % 5) * 0.32);
 
 const monoVert = /* glsl */ `
 attribute vec3 aCol;
+attribute vec3 aColL;
 attribute float aFlare;
 attribute float aLit;
 varying vec3 vL;
@@ -495,8 +543,10 @@ varying vec3 vCol;
 varying float vFlare;
 varying float vLit;
 varying vec3 vW;
+varying vec3 vColL;
 void main() {
   vW = (modelMatrix * instanceMatrix * vec4(position, 1.0)).xyz;
+  vColL = aColL;
   vL = position;
   vNl = normal;
   vCol = aCol;
@@ -518,6 +568,7 @@ varying vec3 vCol;
 varying float vFlare;
 varying float vLit;
 varying vec3 vW;
+varying vec3 vColL;
 void main() {
   float y = vL.y + 0.5;
   float side = abs(vNl.y) < 0.5 ? 1.0 : 0.0;
@@ -530,13 +581,15 @@ void main() {
   float k = (0.35 + vFlare * 1.8) * vLit;
   vec3 glass = vec3(0.006, 0.005, 0.016) + vCol * 0.012;
   vec3 col = glass + vCol * (edge * side * (0.25 + grad * 0.9) + streak * (0.3 + grad * 1.4 + scan * 1.5) + cap * 2.6) * k;
-  vec3 lightCol = mix(vec3(0.94, 0.93, 0.99), vCol * 0.8, clamp(edge * side + streak + cap, 0.0, 1.0) * (0.5 + vFlare));
+  vec3 body = mix(vec3(0.80, 0.77, 0.96), vec3(1.0), smoothstep(0.0, 0.9, y));
+  float kl = clamp(edge * side * 1.15 + streak * (0.6 + grad * 0.4 + scan * 0.6) + cap, 0.0, 1.0) * vLit;
+  vec3 lightCol = mix(body, vColL, kl * (0.85 + vFlare * 0.15));
   col = mix(col, lightCol, uLight);
   // pillars close to the camera dissolve so they never block the view
   float near = smoothstep(mix(6.5, 13.0, uNearK), mix(11.0, 19.0, uNearK), distance(cameraPosition, vW));
   float sx = gl_FragCoord.x / uResX;
   float dim = mix(1.0, mix(0.25, 1.0, smoothstep(0.12, 0.55, sx)), uLeftDim);
-  gl_FragColor = vec4(col * dim, uVis * near);
+  gl_FragColor = vec4(col * mix(dim, 1.0, uLight), uVis * near * mix(1.0, 0.94 * mix(dim, 1.0, 0.5), uLight));
 }
 `;
 
@@ -571,7 +624,7 @@ void main() {
   float p2 = fract(p1 + 0.5);
   float pulses = exp(-pow((vT - p1) * 16.0, 2.0)) + exp(-pow((vT - p2) * 16.0, 2.0));
   float flood = vFlare * (0.6 + 0.4 * sin(vT * 40.0 - uTime * 12.0));
-  float a = (0.1 + pulses * 1.1 + flood * 0.9) * uVis * uLit;
+  float a = (mix(0.1, 0.28, uLight) + pulses * 1.1 + flood * 0.9) * uVis * uLit;
   // merge toward white as the stream nears the core
   vec3 c = mix(vCol, vec3(1.0), smoothstep(0.7, 1.0, vT) * 0.6 + pulses * 0.35);
   gl_FragColor = vec4(mix(c * 1.2, vCol, uLight), clamp(a, 0.0, 1.0));
@@ -587,8 +640,11 @@ function Monoliths() {
     const aLit = new THREE.InstancedBufferAttribute(new Float32Array(n), 1);
     aFlare.setUsage(THREE.DynamicDrawUsage);
     aLit.setUsage(THREE.DynamicDrawUsage);
+    const aColL = new Float32Array(n * 3);
     monoColors.forEach((c, i) => { aCol[i * 3] = c.r; aCol[i * 3 + 1] = c.g; aCol[i * 3 + 2] = c.b; });
+    monoColorsL.forEach((c, i) => { aColL[i * 3] = c.r; aColL[i * 3 + 1] = c.g; aColL[i * 3 + 2] = c.b; });
     geo.setAttribute("aCol", new THREE.InstancedBufferAttribute(aCol, 3));
+    geo.setAttribute("aColL", new THREE.InstancedBufferAttribute(aColL, 3));
     geo.setAttribute("aFlare", aFlare);
     geo.setAttribute("aLit", aLit);
     const mat = new THREE.ShaderMaterial({ vertexShader: monoVert, fragmentShader: monoFrag, uniforms: { uTime: { value: 0 }, uVis: { value: 0 }, uLight: { value: 0 }, uLeftDim: { value: 0 }, uResX: { value: 1 }, uNearK: { value: 0 } }, transparent: true, depthWrite: true });
@@ -654,6 +710,9 @@ function Monoliths() {
       const b = light ? THREE.NormalBlending : THREE.AdditiveBlending;
       parts.railMat.blending = b; parts.caps.mat.blending = b;
       parts.railMat.needsUpdate = true; parts.caps.mat.needsUpdate = true;
+      const rc = parts.railMat.uniforms.uRailCol.value as THREE.Color[];
+      // light rails: saturated accents only (grok's ink monolith feeds a violet rail, never a black line)
+      rc.forEach((c, i) => c.copy(light ? (ENGINES[i].slug === "grok" ? LT.violet : monoColorsL[i]) : monoColors[i]));
     }
     if (group.current) group.current.visible = v > 0.01;
     const hovered = s.engineColor ? s.engineColor.toLowerCase() : null;
@@ -672,7 +731,7 @@ function Monoliths() {
       rf[i] = flare[i];
       // boot: monoliths light one by one around the ring
       lt[i] = since < 0 ? 0 : Math.min(1, Math.max(0, (since - 0.7 - i * 0.11) / 0.35));
-      const c = monoColors[i];
+      const c = light ? monoColorsL[i] : monoColors[i];
       const mp = monoPos[i];
       // top cap glow + base glow
       pa[i * 6] = mp.x; pa[i * 6 + 1] = monoH[i] + 0.05; pa[i * 6 + 2] = mp.z;
@@ -739,6 +798,7 @@ uniform float uScale;
 uniform float uTime;
 uniform vec3 uTeamCol[5];
 uniform float uTeamBoost[5];
+uniform float uLight;
 attribute float aTeam;
 attribute float aSeed;
 varying vec3 vC;
@@ -748,10 +808,15 @@ void main() {
   vec4 mv = modelViewMatrix * vec4(position, 1.0);
   float boost = uTeamBoost[ti];
   float tw = 0.75 + 0.25 * sin(uTime * 4.0 + aSeed * 50.0);
-  gl_PointSize = clamp((0.055 + aSeed * 0.05) * (1.0 + boost * 0.8) * uScale / max(0.1, -mv.z), 0.0, 40.0);
+  gl_PointSize = clamp((0.055 + aSeed * 0.05) * (1.0 + boost * 0.8) * mix(1.0, 0.85, uLight) * uScale / max(0.1, -mv.z), 0.0, mix(40.0, 9.0, uLight));
   gl_Position = projectionMatrix * mv;
   vC = uTeamCol[ti];
   vA = tw * (0.7 + boost * 0.8);
+  // light: thin the swarms out behind the hero lockup (screen x 72-100%, y 68-88%)
+  vec2 ndc = gl_Position.xy / max(gl_Position.w, 1e-3);
+  float inX = smoothstep(0.38, 0.52, ndc.x);
+  float inY = smoothstep(-0.82, -0.7, ndc.y) * (1.0 - smoothstep(-0.38, -0.26, ndc.y));
+  vA *= 1.0 - 0.85 * inX * inY * uLight;
 }
 `;
 const swarmFrag = /* glsl */ `
@@ -762,10 +827,10 @@ varying float vA;
 void main() {
   float d = length(gl_PointCoord - 0.5) * 2.0;
   if (d > 1.0) discard;
-  float core = smoothstep(0.45, 0.0, d);
-  float halo = exp(-d * d * 5.0) * 0.35;
+  float core = mix(smoothstep(0.45, 0.0, d), smoothstep(0.5, 0.22, d), uLight);
+  float halo = exp(-d * d * 5.0) * mix(0.35, 0.18, uLight);
   vec3 c = mix(vC, vec3(1.0), core * 0.45 * (1.0 - uLight));
-  gl_FragColor = vec4(c * mix(1.3, 1.0, uLight), clamp((core + halo) * vA * uVis, 0.0, 1.0));
+  gl_FragColor = vec4(c * mix(1.3, 1.0, uLight), clamp((core + halo) * vA * mix(1.0, 1.25, uLight) * uVis, 0.0, 1.0));
 }
 `;
 
@@ -843,7 +908,14 @@ function Swarms({ count }: { count: number }) {
     if (theme.current !== s.theme) {
       theme.current = s.theme;
       U.uLight.value = light ? 1 : 0;
-      (U.uTeamCol.value as THREE.Color[])[2].set(light ? "#1A1A2E" : engineColor.grok);
+      const tc = U.uTeamCol.value as THREE.Color[];
+      // light: saturated team colours only (grok -> magenta, accent -> deep violet), never grey/black dots
+      TEAM_HEX.forEach((h, k) => tc[k].set(h));
+      if (light) {
+        tc[2].copy(LT.magenta);
+        tc[4].copy(LT.violet);
+        tc[0].lerp(LT.tile1, 0.22); // softer claude orange on porcelain so it never reads as a blob
+      }
       const b = light ? THREE.NormalBlending : THREE.AdditiveBlending;
       sim.mat.blending = b; sim.orbSprites.mat.blending = b;
       sim.mat.needsUpdate = true; sim.orbSprites.mat.needsUpdate = true;

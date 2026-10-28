@@ -78,10 +78,10 @@ function Orbit() {
       <svg className="absolute inset-0 h-full w-full overflow-visible pointer-events-none" viewBox="0 0 100 100">
         {active !== null && (
           <g key={tick}>
-            <line ref={(el) => { beams.current[0] = el; }} className="orb-beam" pathLength={1} x1="50" y1="50" x2="50" y2="50"
-              stroke="var(--accent)" strokeOpacity=".35" strokeWidth="2.4" strokeLinecap="round" style={{ filter: "blur(1.5px)" }} />
-            <line ref={(el) => { beams.current[1] = el; }} className="orb-beam" pathLength={1} x1="50" y1="50" x2="50" y2="50"
-              stroke="#6FD0FF" strokeWidth=".55" strokeLinecap="round" />
+            <line ref={(el) => { beams.current[0] = el; }} pathLength={1} x1="50" y1="50" x2="50" y2="50"
+              className="orb-beam orb-beam-glow" stroke="var(--accent)" strokeOpacity=".35" strokeWidth="2.4" strokeLinecap="round" style={{ filter: "blur(1.5px)" }} />
+            <line ref={(el) => { beams.current[1] = el; }} pathLength={1} x1="50" y1="50" x2="50" y2="50"
+              className="orb-beam orb-beam-core" stroke="#6FD0FF" strokeWidth=".55" strokeLinecap="round" />
           </g>
         )}
       </svg>

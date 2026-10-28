@@ -54,7 +54,7 @@ varying float vA;
 void main() {
   float d = length(gl_PointCoord - 0.5);
   if (d > 0.5) discard;
-  float a = (smoothstep(0.5, 0.0, d) * 0.5 + exp(-d * d * 40.0) * 0.7) * vA;
+  float a = (smoothstep(0.5, 0.0, d) * mix(0.5, 0.35, uLight) + mix(exp(-d * d * 40.0), smoothstep(0.4, 0.15, d), uLight) * mix(0.7, 1.0, uLight)) * vA;
   if (a < 0.003) discard;
   gl_FragColor = vec4(mix(vC * 1.3, vC, uLight), clamp(a, 0.0, 1.0));
 }

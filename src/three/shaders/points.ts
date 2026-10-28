@@ -48,8 +48,9 @@ void main() {
   // optional depth fade for spherical shapes (uDepthFade, currently unused = 0)
   vec3 vn = normalize(normalMatrix * (position + vec3(1e-4)));
   float df = mix(1.0, mix(0.12, 1.0, smoothstep(-0.2, 0.25, vn.z)), uDepthFade);
-  float sz = uSize * aSize * (0.45 + 0.6 * min(b, 2.2)) * (1.0 + sparkle * 1.1 + uFlash * 0.8 + hot * 0.5);
-  gl_PointSize = clamp(sz * mix(0.55, 1.0, df) * uScale / max(0.1, -mv.z), 0.0, 56.0);
+  // light: bright particles stay small so dense nodes read as crisp clusters, not ink splats
+  float sz = uSize * aSize * mix(0.45 + 0.6 * min(b, 2.2), 0.6 + 0.22 * min(b, 2.0), uLight) * (1.0 + sparkle * 1.1 + uFlash * 0.8 + hot * 0.5);
+  gl_PointSize = clamp(sz * mix(0.55, 1.0, df) * mix(1.0, 0.7, uLight) * uScale / max(0.1, -mv.z), 0.0, 56.0);
   gl_Position = projectionMatrix * mv;
 
   float g = clamp(aSeed * 0.55 + (position.x * 0.1 + position.y * 0.07 + 0.5) * 0.45, 0.0, 1.0);
@@ -60,7 +61,7 @@ void main() {
   vec3 dark = c * (0.6 + 0.5 * min(b, 2.0) + uFlash * 0.8);
   vColor = mix(dark, c, uLight);
   vHot = hot + sparkle;
-  vAlpha = df * tw * clamp(bb, 0.0, 2.2) * mix(1.0, 0.8, uLight);
+  vAlpha = df * tw * mix(clamp(bb, 0.0, 2.2), clamp(bb * 1.6, 0.0, 0.85), uLight);
 }
 `;
 
@@ -74,9 +75,10 @@ void main() {
   vec2 p = gl_PointCoord - 0.5;
   float d = length(p);
   if (d > 0.5) discard;
-  float core = smoothstep(0.2, 0.02, d);
-  float halo = exp(-d * d * 22.0) * mix(0.32, 0.18, uLight);
-  float a = (core + halo) * vAlpha * uOpacity;
+  // light: larger, opaque saturated cores (no faint grey specks on porcelain)
+  float core = mix(smoothstep(0.2, 0.02, d), smoothstep(0.34, 0.14, d), uLight);
+  float halo = exp(-d * d * 22.0) * mix(0.32, 0.12, uLight);
+  float a = (core + halo) * vAlpha * uOpacity * mix(1.0, 1.25, uLight);
   vec3 c = mix(vColor, vec3(1.0), core * (0.25 + 0.4 * clamp(vHot, 0.0, 1.0)) * (1.0 - uLight));
   gl_FragColor = vec4(c, min(a, 1.0));
 }

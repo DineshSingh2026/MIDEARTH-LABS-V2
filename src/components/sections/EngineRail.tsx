@@ -10,8 +10,10 @@ type Item = { slug: string; name: string; by: string };
 function EngineChip({ it, dup = false }: { it: Item; dup?: boolean }) {
   const set = useStore((s) => s.set);
   const c = engineColor[it.slug] ?? ACCENT;
+  const L = useStore((s) => s.theme) === "light";
+  const cv = L ? (c.toUpperCase() === "#FFFFFF" ? "#14173A" : c === ACCENT ? "#5B2EE0" : c) : c;
   return (
-    <span aria-hidden={dup || undefined} className="chip eng-chip shrink-0 whitespace-nowrap" style={{ "--c": c } as CSSProperties}
+    <span aria-hidden={dup || undefined} className="chip eng-chip shrink-0 whitespace-nowrap" style={{ "--c": cv } as CSSProperties}
       onMouseEnter={() => set({ engineColor: c })} onMouseLeave={() => set({ engineColor: null })}>
       <span className="chip-icon">
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -56,6 +58,10 @@ export default function EngineRail() {
         .eng-chip:hover{transform:translateY(-4px);
           background:linear-gradient(color-mix(in oklab,var(--c) 10%,var(--chip-bg)),color-mix(in oklab,var(--c) 10%,var(--chip-bg))) padding-box,linear-gradient(120deg,var(--c),color-mix(in oklab,var(--c) 30%,transparent)) border-box;
           box-shadow:0 12px 34px -8px color-mix(in oklab,var(--c) 75%,transparent),0 0 0 4px color-mix(in oklab,var(--c) 12%,transparent)}
+        :root[data-theme="light"] .er-band{background:linear-gradient(180deg,transparent,rgba(255,255,255,.6) 30%,rgba(255,255,255,.6) 70%,transparent)}
+        :root[data-theme="light"] .er-hair{background:linear-gradient(90deg,transparent,rgba(91,46,224,.3) 30%,rgba(31,111,214,.25) 70%,transparent)}
+        :root[data-theme="light"] .eng-chip{background:linear-gradient(#fff,#fff) padding-box,linear-gradient(120deg,rgba(91,46,224,.28),rgba(31,111,214,.1) 55%,rgba(91,46,224,.2)) border-box;box-shadow:0 6px 16px -10px rgba(91,46,224,.22)}
+        :root[data-theme="light"] .eng-chip:hover{background:linear-gradient(color-mix(in oklab,var(--c) 6%,#fff),color-mix(in oklab,var(--c) 6%,#fff)) padding-box,linear-gradient(120deg,var(--c),color-mix(in oklab,var(--c) 30%,transparent)) border-box;box-shadow:0 14px 30px -12px color-mix(in oklab,var(--c) 45%,transparent),0 0 0 4px color-mix(in oklab,var(--c) 8%,transparent)}
         .eng-chip .chip-icon{transition:background .35s,box-shadow .35s}
         .eng-chip:hover .chip-icon{background:color-mix(in oklab,var(--c) 26%,transparent);box-shadow:0 0 14px color-mix(in oklab,var(--c) 60%,transparent)}
       `}</style>

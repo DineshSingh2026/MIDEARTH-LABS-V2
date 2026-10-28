@@ -1,16 +1,20 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { useStore } from "@/lib/store";
 
 const NAMES = ["agent_a", "agent_b", "agent_c"];
 const WIN = 5;
-const TOKEN = "#FFD27A";
+const TOKEN_D = "#FFD27A", TOKEN_L = "#D9822B";
 
 type Agent = { x: number; y: number; vx: number; vy: number; sp: number; k: number; ph: number; flash: number; alpha: number; trail: number[] };
 type Spark = { x: number; y: number; vx: number; vy: number; life: number; c: string };
 
 /** 01 · Autonomous agents chase a token in a tiny arena: comet trails, a burst on each score, a live scoreboard. */
 export default function ArenaSim({ running, reduced, accent = "#A98CFF" }: { running: boolean; reduced: boolean; accent?: string }) {
-  const COLORS = [accent, "#6FD0FF", "#FF7AB6"];
+  const L = useStore((s) => s.theme) === "light";
+  const COLORS = L ? [accent, "#0E8FC7", "#D63F8C"] : [accent, "#6FD0FF", "#FF7AB6"];
+  const TOKEN = L ? TOKEN_L : TOKEN_D;
+  const TOK_RGB = L ? "217,130,43" : "255,210,122";
   const ref = useRef<HTMLCanvasElement>(null);
   const [score, setScore] = useState<number[]>([0, 0, 0]);
   const [round, setRound] = useState(1);
@@ -41,17 +45,17 @@ export default function ArenaSim({ running, reduced, accent = "#A98CFF" }: { run
       ctx.clearRect(0, 0, w, h);
       ctx.globalCompositeOperation = "source-over";
       // arena: centre line + circle
-      ctx.strokeStyle = "rgba(180,160,255,.18)"; ctx.lineWidth = 1;
+      ctx.strokeStyle = L ? "rgba(91,46,224,.22)" : "rgba(180,160,255,.18)"; ctx.lineWidth = 1;
       ctx.setLineDash([3, 5]); ctx.beginPath(); ctx.moveTo(w / 2, top); ctx.lineTo(w / 2, h - 8); ctx.stroke(); ctx.setLineDash([]);
       ctx.beginPath(); ctx.arc(w / 2, (h + top) / 2, 24, 0, Math.PI * 2); ctx.stroke();
-      ctx.globalCompositeOperation = "lighter";
+      ctx.globalCompositeOperation = L ? "source-over" : "lighter";
       // token
       const tk = S.tok; const sc = Math.min(1, tk.t * 4); const pulse = 1 + Math.sin(S.time * 6) * 0.18;
       if (S.pause <= 0) {
         const g = ctx.createRadialGradient(tk.x, tk.y, 0, tk.x, tk.y, 22 * sc);
-        g.addColorStop(0, "rgba(255,210,122,.45)"); g.addColorStop(1, "rgba(255,210,122,0)");
+        g.addColorStop(0, `rgba(${TOK_RGB},${L ? .3 : .45})`); g.addColorStop(1, `rgba(${TOK_RGB},0)`);
         ctx.fillStyle = g; ctx.beginPath(); ctx.arc(tk.x, tk.y, 22 * sc, 0, Math.PI * 2); ctx.fill();
-        ctx.strokeStyle = `rgba(255,210,122,${0.5 * sc})`; ctx.beginPath(); ctx.arc(tk.x, tk.y, 10 * pulse * sc, 0, Math.PI * 2); ctx.stroke();
+        ctx.strokeStyle = `rgba(${TOK_RGB},${0.5 * sc})`; ctx.beginPath(); ctx.arc(tk.x, tk.y, 10 * pulse * sc, 0, Math.PI * 2); ctx.stroke();
         ctx.save(); ctx.translate(tk.x, tk.y); ctx.rotate(Math.PI / 4 + S.time * 1.4); ctx.fillStyle = TOKEN;
         const s = 3.6 * sc; ctx.fillRect(-s, -s, s * 2, s * 2); ctx.restore();
       }
@@ -127,26 +131,26 @@ export default function ArenaSim({ running, reduced, accent = "#A98CFF" }: { run
     if (running && !reduced) raf = requestAnimationFrame(loop);
     return () => { cancelAnimationFrame(raf); ro.disconnect(); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [running, reduced, accent]);
+  }, [running, reduced, accent, L]);
 
   return (
     <div className="relative h-full w-full" aria-hidden>
       <canvas ref={ref} className="block h-full w-full" />
       {/* scoreboard */}
       <div className="mono pointer-events-none absolute inset-x-0 top-0 flex items-center gap-1.5 border-b px-2.5 py-1.5 text-[10px]"
-        style={{ borderColor: "color-mix(in oklab, var(--ac, #A98CFF) 20%, transparent)", background: "linear-gradient(180deg, rgba(6,8,26,.75), rgba(6,8,26,.35))" }}>
+        style={{ borderColor: "color-mix(in oklab, var(--ac, #A98CFF) 20%, transparent)", background: L ? "linear-gradient(180deg, rgba(255,255,255,.95), rgba(255,255,255,.7))" : "linear-gradient(180deg, rgba(6,8,26,.75), rgba(6,8,26,.35))" }}>
         {score.map((s, i) => (
           <span key={i} className="flex flex-1 items-center gap-1.5 rounded-md px-1.5 py-0.5 transition-colors duration-300"
             style={{ background: lead === i ? `color-mix(in oklab, ${COLORS[i]} 18%, transparent)` : "transparent" }}>
             <span className="h-1.5 w-1.5 rounded-full" style={{ background: COLORS[i], boxShadow: `0 0 6px ${COLORS[i]}` }} />
-            <span className="hidden sm:inline" style={{ color: "#C2C8EA" }}>{NAMES[i]}</span>
+            <span className="hidden sm:inline" style={{ color: L ? "var(--ink-soft)" : "#C2C8EA" }}>{NAMES[i]}</span>
             <span className="ml-auto flex gap-[3px]">
               {Array.from({ length: WIN }).map((_, k) => <span key={k} className="h-[5px] w-[5px] rounded-[1px]" style={{ background: k < s ? COLORS[i] : "rgba(160,150,220,.2)", boxShadow: k < s ? `0 0 4px ${COLORS[i]}` : "none" }} />)}
             </span>
-            <b className="w-[1.2ch] text-right tabular-nums" style={{ color: "#F1F3FF" }}>{s}</b>
+            <b className="w-[1.2ch] text-right tabular-nums" style={{ color: L ? "var(--ink)" : "#F1F3FF" }}>{s}</b>
           </span>
         ))}
-        <span className="pl-1 uppercase tracking-[.14em]" style={{ color: "#8D95BE" }}>r{round}</span>
+        <span className="pl-1 uppercase tracking-[.14em]" style={{ color: L ? "var(--ink-faint)" : "#8D95BE" }}>r{round}</span>
       </div>
     </div>
   );

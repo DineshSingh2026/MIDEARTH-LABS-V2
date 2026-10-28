@@ -53,22 +53,22 @@ function Defs({ id }: { id: string }) {
   return (
     <defs>
       <linearGradient id={`${id}-body`} x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stopColor="#3A3F72" />
-        <stop offset="1" stopColor="#14173A" />
+        <stop className="s-body0" offset="0" stopColor="#3A3F72" />
+        <stop className="s-body1" offset="1" stopColor="#14173A" />
       </linearGradient>
       <linearGradient id={`${id}-screen`} x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stopColor="#1B1450" />
-        <stop offset=".6" stopColor="#0C1440" />
-        <stop offset="1" stopColor="#0A2A5C" />
+        <stop className="s-scr0" offset="0" stopColor="#1B1450" />
+        <stop className="s-scr1" offset=".6" stopColor="#0C1440" />
+        <stop className="s-scr2" offset="1" stopColor="#0A2A5C" />
       </linearGradient>
       <linearGradient id={`${id}-acc`} x1="0" y1="0" x2="1" y2="0">
         <stop offset="0" stopColor="#7C5CFF" />
-        <stop offset="1" stopColor="#6FD0FF" />
+        <stop className="s-acc1" offset="1" stopColor="#6FD0FF" />
       </linearGradient>
       <linearGradient id={`${id}-edge`} x1="0" y1="0" x2="1" y2="1">
         <stop offset="0" stopColor="#C9A7FF" stopOpacity=".9" />
         <stop offset=".5" stopColor="#C9A7FF" stopOpacity=".1" />
-        <stop offset="1" stopColor="#6FD0FF" stopOpacity=".6" />
+        <stop className="s-edge2" offset="1" stopColor="#6FD0FF" stopOpacity=".6" />
       </linearGradient>
     </defs>
   );
@@ -80,13 +80,13 @@ function ChatUI({ x, y, w, h, id, compact = false }: { x: number; y: number; w: 
   const bw = w - p * 2;
   return (
     <g>
-      <rect x={x + p} y={y + p} width={bw * 0.62} height={compact ? 9 : 10} rx="5" fill="#fff" opacity=".12" />
+      <rect x={x + p} y={y + p} width={bw * 0.62} height={compact ? 9 : 10} rx="5" className="ui-ghost" fill="#fff" opacity=".12" />
       <rect x={x + w - p - bw * 0.55} y={y + p + (compact ? 14 : 16)} width={bw * 0.55} height={compact ? 9 : 10} rx="5" fill={`url(#${id}-acc)`} opacity=".9" />
-      <rect x={x + p} y={y + p + (compact ? 28 : 32)} width={bw * 0.75} height={compact ? 9 : 10} rx="5" fill="#fff" opacity=".12" />
+      <rect x={x + p} y={y + p + (compact ? 28 : 32)} width={bw * 0.75} height={compact ? 9 : 10} rx="5" className="ui-ghost" fill="#fff" opacity=".12" />
       <rect x={x + p} y={y + h - p - (compact ? 22 : 26)} width={bw} height={compact ? 22 : 26} rx="6" fill="#fff" fillOpacity=".06" stroke="#A98CFF" strokeOpacity=".5" />
       <rect x={x + p + 6} y={y + h - p - (compact ? 14 : 17)} width={bw * 0.3} height="7" rx="3.5" fill="#10A37F" opacity=".85" />
       <rect x={x + p + 10 + bw * 0.3} y={y + h - p - (compact ? 14 : 17)} width={bw * 0.3} height="7" rx="3.5" fill="#fff" opacity=".18" />
-      <circle className="blip" cx={x + w - p - 4} cy={y + p + 4} r="2.4" fill="#6FD0FF" />
+      <circle className="blip ui-blip" cx={x + w - p - 4} cy={y + p + 4} r="2.4" fill="#6FD0FF" />
     </g>
   );
 }
@@ -113,7 +113,7 @@ export function MonitorArt() {
       <Defs id={id} />
       <rect x="10" y="6" width="200" height="118" rx="8" fill={`url(#${id}-body)`} stroke={`url(#${id}-edge)`} />
       <rect x="16" y="12" width="188" height="106" rx="4" fill={`url(#${id}-screen)`} />
-      <rect x="40" y="22" width="140" height="84" rx="5" fill="#0B0F2C" stroke="#A98CFF" strokeOpacity=".35" />
+      <rect className="ui-win" x="40" y="22" width="140" height="84" rx="5" fill="#0B0F2C" stroke="#A98CFF" strokeOpacity=".35" />
       <rect x="40" y="22" width="140" height="12" rx="5" fill="#fff" opacity=".07" />
       {[0, 1, 2].map((k) => <rect key={k} x={164 - k * 9} y="26" width="5" height="4" rx="1" fill="#fff" opacity=".4" />)}
       <ChatUI x={40} y={34} w={140} h={72} id={id} compact />

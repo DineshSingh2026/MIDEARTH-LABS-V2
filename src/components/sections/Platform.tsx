@@ -19,6 +19,8 @@ gsap.registerPlugin(ScrollTrigger);
 const P = site.platform;
 const LAST = P.cards[P.cards.length - 1].n;
 export const CARD_ACCENTS = ["#A98CFF", "#6FD0FF", "#4F8BFF", "#E07BFF", "#3DDBB4", "#FFB86B"];
+export const CARD_ACCENTS_LIGHT = ["#6B3FE8", "#0E8FC7", "#2F6BE0", "#B83FD6", "#0FA88A", "#D9822B"];
+const useAccents = () => (useStore((s) => s.theme) === "light" ? CARD_ACCENTS_LIGHT : CARD_ACCENTS);
 type VisualProps = { running: boolean; reduced: boolean; accent: string };
 const VISUALS: ComponentType<VisualProps>[] = [ArenaSim, EndpointPulse, ServerRack, RuntimeRing, ConnectorThreads, ModelRouter];
 const DESKTOP = "(min-width: 1024px) and (prefers-reduced-motion: no-preference)";
@@ -26,7 +28,7 @@ const STACKED = "(max-width: 1023px), (prefers-reduced-motion: reduce)";
 
 function Card({ i, active, reduced }: { i: number; active: boolean; reduced: boolean }) {
   const c = P.cards[i];
-  const accent = CARD_ACCENTS[i];
+  const accent = useAccents()[i];
   const ref = useRef<HTMLElement>(null);
   const [inView, setInView] = useState(false);
   useEffect(() => {
@@ -100,7 +102,8 @@ export default function Platform() {
     return () => mm.revert();
   }, [set]);
 
-  const ac = CARD_ACCENTS[active];
+  const accents = useAccents();
+  const ac = accents[active];
 
   return (
     <section id="features" data-chapter="platform" className="section pf-section">
@@ -122,9 +125,9 @@ export default function Platform() {
                 <div key={c.n} className="flex min-w-0 flex-col gap-2">
                   <span className="relative h-[3px] overflow-hidden rounded-full" style={{ background: "var(--line)" }}>
                     <span className="absolute inset-0 origin-left rounded-full" style={{
-                      background: `linear-gradient(90deg, ${CARD_ACCENTS[i]}, color-mix(in oklab, ${CARD_ACCENTS[i]} 40%, white))`,
+                      background: `linear-gradient(90deg, ${accents[i]}, color-mix(in oklab, ${accents[i]} 40%, white))`,
                       transform: `scaleX(${on || past ? 1 : 0})`, opacity: on ? 1 : 0.4,
-                      boxShadow: on ? `0 0 12px ${CARD_ACCENTS[i]}` : "none",
+                      boxShadow: on ? `0 0 12px ${accents[i]}` : "none",
                       transition: "transform .8s cubic-bezier(.16,1,.3,1), opacity .5s",
                     }} />
                   </span>
@@ -174,7 +177,27 @@ export default function Platform() {
             padding-inline:calc((100vw - min(560px,80vw)) / 2)}
           .pf-card{width:min(560px,80vw);min-height:min(540px,calc(100vh - 170px));flex-shrink:0;opacity:.45;transform:scale(.9);filter:saturate(.6) brightness(.85)}
           .pf-card.is-on{opacity:1;transform:none;filter:none}
+          :root[data-theme="light"] .pf-card{filter:none;opacity:.55;transform:scale(.92)}
+          :root[data-theme="light"] .pf-card.is-on{opacity:1;transform:none}
         }
+        /* ---- light theme: daylight observatory ---- */
+        :root[data-theme="light"] .pf-card{
+          background:linear-gradient(180deg,rgba(255,255,255,.86),rgba(251,250,255,.82));
+          border-color:color-mix(in oklab,var(--ac) 18%,rgba(91,46,224,.12));
+          box-shadow:0 24px 60px -28px rgba(91,46,224,.18),0 2px 6px rgba(91,46,224,.05),inset 0 1px 0 #fff}
+        :root[data-theme="light"] .pf-card.is-on{border-color:color-mix(in oklab,var(--ac) 40%,transparent);
+          box-shadow:0 40px 90px -34px color-mix(in oklab,var(--ac) 38%,transparent),0 12px 30px -16px rgba(91,46,224,.16),inset 0 1px 0 #fff}
+        :root[data-theme="light"] .pf-radial{background:radial-gradient(80% 55% at 50% 0%,color-mix(in oklab,var(--ac) 10%,transparent),transparent 70%)}
+        :root[data-theme="light"] .pf-topglow{box-shadow:0 0 14px 1px color-mix(in oklab,var(--ac) 60%,transparent)}
+        :root[data-theme="light"] .pf-num-o{-webkit-text-stroke:1px color-mix(in oklab,var(--ac) 35%,rgba(91,46,224,.2))}
+        :root[data-theme="light"] .pf-num-f{background-image:linear-gradient(160deg,color-mix(in oklab,var(--ac) 70%,#5B2EE0),var(--ac) 60%,color-mix(in oklab,var(--ac) 75%,#1F6FD6))}
+        :root[data-theme="light"] .pf-vis{border-color:color-mix(in oklab,var(--ac) 22%,rgba(91,46,224,.14));
+          background:
+            radial-gradient(70% 90% at 50% 50%,color-mix(in oklab,var(--ac) 7%,transparent),transparent 70%),
+            linear-gradient(color-mix(in oklab,var(--ac) 9%,transparent) 1px,transparent 1px) 0 0/22px 22px,
+            linear-gradient(90deg,color-mix(in oklab,var(--ac) 9%,transparent) 1px,transparent 1px) 0 0/22px 22px,
+            linear-gradient(180deg,#FFFFFF,#F3F0FF);
+          box-shadow:inset 0 1px 0 #fff,0 6px 18px -10px rgba(91,46,224,.18)}
       `}</style>
     </section>
   );
